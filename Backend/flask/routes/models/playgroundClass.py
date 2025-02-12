@@ -35,13 +35,13 @@ class PlaygroundClass(FlaskClass):
         headers = {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": api_key,
-            "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.id"
+            "X-Goog-FieldMask": "places.currentOpeningHours,places.displayName"
         }
 
         # Create the payload with the user-provided query.
         payload = {
             "textQuery": query,
-            "pageSize": 5  # Adjust the number of results as needed
+            "pageSize": 1  # Adjust the number of results as needed
         }
 
         try:
