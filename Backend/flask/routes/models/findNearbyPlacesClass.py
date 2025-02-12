@@ -94,14 +94,13 @@ class FindNearbyPlacesClass(FlaskClass):
             }
         
         # Set up the field mask as required.
+        
         field_mask = (
             "places.currentOpeningHours,places.delivery,places.formattedAddress,"
-            "places.displayName,places.location,places.photos,places.servesBreakfast,"
-            "places.servesBrunch,places.servesCocktails,places.servesCoffee,places.servesDessert,"
-            "places.servesDinner,places.servesLunch,places.servesVegetarianFood,places.servesWine,"
+            "places.displayName,places.location,places.photos,"
             "places.types,places.websiteUri,places.id"
         )
-
+        
 
         headers = {
             "Content-Type": "application/json",
