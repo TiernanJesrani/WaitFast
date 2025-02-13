@@ -43,8 +43,40 @@ def create_table():
         );
         """
 
+        # Define table schema for wait times by the hour
+        # This table will store a wait time (in minutes) for each hour that a location is open
+        # The day field is stored as TEXT for readability (e.g. 'Monday', 'Tuesday', ...),
+        # and hour is an integer representing the hour of the day (0-23).
+        # A uniqueness constraint ensures that each location, day, and hour combination appears only once.
+        create_wait_times_table = """
+        CREATE TABLE IF NOT EXISTS wait_times (
+            id SERIAL PRIMARY KEY,
+            location_id INTEGER NOT NULL REFERENCES locations(id) ON DELETE CASCADE,
+            day TEXT NOT NULL CHECK (day IN ('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday')),
+            hour INTEGER NOT NULL CHECK (hour BETWEEN 0 AND 23),
+            wait_time INTEGER NOT NULL,
+            sample_count INTEGER DEFAULT 0,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (location_id, day, hour)
+        );  
+        """
+
+        
+        create_wait_times_submissions_table = """
+        CREATE TABLE IF NOT EXISTS wait_times_submissions_table (
+            id SERIAL PRIMARY KEY,
+            location_id INTEGER NOT NULL REFERENCES locations(id) ON DELETE CASCADE,
+            user_id INTEGER, -- optional if we want to assocaite table with users
+            submitted_wait_time INTEGER NOT NULL,
+            submitted_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """
+
+
         cursor.execute(create_locations_table)
         cursor.execute(create_opening_hours_table)
+        cursor.execute(create_wait_times_table)
+        cursor.execute(create_wait_times_submissions_table)
         connection.commit()
         print("Tables created successfully")
 
