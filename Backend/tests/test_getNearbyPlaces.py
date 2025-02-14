@@ -6,6 +6,7 @@ import requests
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from Backend.flask.routes.models.findNearbyPlacesClass import FindNearbyPlacesClass, configure
+from Backend.flask.routes.models.getPlaceDetails import GetPlaceDetailsClass
 from Backend.tests.helpers.dummy_api import DummyResponse, dummy_post_with_types, dummy_post
 
 # DummyResponse simulates the requests.Response object.

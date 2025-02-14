@@ -15,6 +15,7 @@ def create_table():
         )
         cursor = connection.cursor()
 
+
         # Define table schema 
         create_locations_table = """
         CREATE TABLE IF NOT EXISTS locations (
@@ -23,11 +24,13 @@ def create_table():
             displayName TEXT,
             delivery BOOLEAN,
             latlong point,
-            type TEXT,
+            type TEXT[],
             photos JSONB,
             websiteURI TEXT
         );
         """
+
+
 
         # Define table schema for opening hours
         # location_id connects to the locations table
@@ -37,9 +40,7 @@ def create_table():
             location_id INTEGER NOT NULL REFERENCES locations(id) ON DELETE CASCADE,
             day TEXT,
             open_time TIME,
-            close_time TIME,
-            open_day TEXT,
-            close_day TEXT
+            close_time TIME
         );
         """
 
@@ -60,6 +61,7 @@ def create_table():
             UNIQUE (location_id, day, hour)
         );  
         """
+
 
         
         create_wait_times_submissions_table = """

@@ -35,7 +35,7 @@ class PlaygroundClass(FlaskClass):
         headers = {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": api_key,
-            "X-Goog-FieldMask": "places.currentOpeningHours,places.displayName"
+            "X-Goog-FieldMask": "places.displayName,places.id,places.place_id"
         }
 
         # Create the payload with the user-provided query.
