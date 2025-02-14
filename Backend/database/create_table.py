@@ -23,6 +23,7 @@ def create_table():
             placed_id VARCHAR(255) UNIQUE,
             displayName TEXT,
             delivery BOOLEAN,
+            address TEXT,
             latlong point,
             type TEXT[],
             photos JSONB,

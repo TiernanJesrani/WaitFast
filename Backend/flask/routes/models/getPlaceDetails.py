@@ -54,7 +54,8 @@ class GetPlaceDetailsClass(FlaskClass):
                 SELECT 
                     l.place_id, 
                     l.displayName, 
-                    l.delivery, 
+                    l.delivery,
+                    l.address, 
                     l.latlong, 
                     l.type, 
                     l.photos, 
@@ -183,6 +184,8 @@ class GetPlaceDetailsClass(FlaskClass):
             display_name = place_data.get("displayName") or place_data.get("name") or ""
             delivery = place_data.get("delivery", False)
 
+            address = place_data.get("formattedAddress") or ""
+
             # Extract the location details
             location = place_data.get("location")
             lat = location.get("lat") if location else None
@@ -195,21 +198,22 @@ class GetPlaceDetailsClass(FlaskClass):
             websiteURI = place_data.get("websiteUri") or ""
 
             query = """
-                INSERT INTO locations (place_id, displayName, delivery, latlong, type, photos, websiteURI)
+                INSERT INTO locations (place_id, displayName, delivery, address, latlong, type, photos, websiteURI)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
-                RETURNING place_id, displayName, delivery, latlong, type, photos, websiteURI;
+                RETURNING place_id, displayName, delivery, address, latlong, type, photos, websiteURI;
             """
-            cursor.execute(query, (place_id, display_name, delivery, latlong, types_field, photos, websiteURI))
+            cursor.execute(query, (place_id, display_name, delivery, address, latlong, types_field, photos, websiteURI))
             connection.commit()
             record = cursor.fetchone()
             return {
                 "place_id": record[0],
                 "displayName": record[1],
                 "delivery": record[2],
-                "latlong": record[3],
-                "type": record[4],
-                "photos": record[5],
-                "websiteURI": record[6]
+                "address": record[3],
+                "latlong": record[4],
+                "type": record[5],
+                "photos": record[6],
+                "websiteURI": record[7]
             }
         except Exception as e:
             print("Error in insert_place_details", e)
