@@ -15,12 +15,12 @@ def create_table():
         )
         cursor = connection.cursor()
 
-
+      
         # Define table schema 
         create_locations_table = """
         CREATE TABLE IF NOT EXISTS locations (
             id SERIAL PRIMARY KEY,
-            placed_id VARCHAR(255) UNIQUE,
+            place_id VARCHAR(255) UNIQUE,
             displayName TEXT,
             delivery BOOLEAN,
             address TEXT,

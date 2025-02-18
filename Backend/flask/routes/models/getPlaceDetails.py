@@ -103,15 +103,16 @@ class GetPlaceDetailsClass(FlaskClass):
             for row in results:
                 place_id = row[0]
                 local_places[place_id] = {
-                    "plade_id": row[0],
+                    "place_id": row[0],
                     "displayName": row[1],
                     "delivery": row[2],
-                    "latlong": row[3],
-                    "type": row[4],
-                    "photos": row[5],
-                    "websiteURI": row[6],
-                    "opening_hours": row[7], # Aggregated JSON array for all opening hours
-                    "wait_times": row[8] # Aggregated JSON array for all wait_times
+                    "address": row[3],
+                    "latlong": row[4],
+                    "type": row[5],
+                    "photos": row[6],
+                    "websiteURI": row[7],
+                    "opening_hours": row[8], # Aggregated JSON array for all opening hours
+                    "wait_times": row[9] # Aggregated JSON array for all wait_times
                 }
             return local_places
 
