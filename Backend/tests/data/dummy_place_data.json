@@ -1,0 +1,153 @@
+[
+    [
+      "loc_1",
+      "Location One",
+      true,
+      "123 Main St",
+      "(12.34,56.78)",
+      ["restaurant", "bar"],
+      [
+        {"photo": "url1"},
+        {"photo": "url1b"}
+      ],
+      "http://locationone.example.com",
+      [
+        {"day": "Sunday", "open_time": "09:00", "close_time": "17:00"},
+        {"day": "Monday", "open_time": "09:00", "close_time": "17:00"},
+        {"day": "Tuesday", "open_time": "09:00", "close_time": "17:00"},
+        {"day": "Wednesday", "open_time": "09:00", "close_time": "17:00"},
+        {"day": "Thursday", "open_time": "09:00", "close_time": "17:00"},
+        {"day": "Friday", "open_time": "09:00", "close_time": "17:00"},
+        {"day": "Saturday", "open_time": "10:00", "close_time": "15:00"}
+      ],
+      [
+        {"day": "Sunday", "hour": 12, "wait_time": 5, "sample_count": 10, "updated_at": "2022-01-01T12:00:00"},
+        {"day": "Monday", "hour": 12, "wait_time": 7, "sample_count": 10, "updated_at": "2022-01-01T12:00:00"},
+        {"day": "Tuesday", "hour": 12, "wait_time": 6, "sample_count": 10, "updated_at": "2022-01-01T12:00:00"},
+        {"day": "Wednesday", "hour": 12, "wait_time": 8, "sample_count": 10, "updated_at": "2022-01-01T12:00:00"},
+        {"day": "Thursday", "hour": 12, "wait_time": 4, "sample_count": 10, "updated_at": "2022-01-01T12:00:00"},
+        {"day": "Friday", "hour": 12, "wait_time": 9, "sample_count": 10, "updated_at": "2022-01-01T12:00:00"},
+        {"day": "Saturday", "hour": 12, "wait_time": 3, "sample_count": 10, "updated_at": "2022-01-01T12:00:00"}
+      ]
+    ],
+    [
+      "loc_2",
+      "Location Two",
+      false,
+      "456 Elm St",
+      "(23.45,67.89)",
+      ["cafe"],
+      [
+        {"photo": "url2"}
+      ],
+      "http://locationtwo.example.com",
+      [
+        {"day": "Sunday", "open_time": "08:00", "close_time": "16:00"},
+        {"day": "Monday", "open_time": "08:00", "close_time": "16:00"},
+        {"day": "Tuesday", "open_time": "08:00", "close_time": "16:00"},
+        {"day": "Wednesday", "open_time": "08:00", "close_time": "16:00"},
+        {"day": "Thursday", "open_time": "08:00", "close_time": "16:00"},
+        {"day": "Friday", "open_time": "08:00", "close_time": "16:00"},
+        {"day": "Saturday", "open_time": "09:00", "close_time": "15:00"}
+      ],
+      [
+        {"day": "Sunday", "hour": 13, "wait_time": 10, "sample_count": 20, "updated_at": "2022-02-01T13:00:00"},
+        {"day": "Monday", "hour": 13, "wait_time": 11, "sample_count": 20, "updated_at": "2022-02-01T13:00:00"},
+        {"day": "Tuesday", "hour": 13, "wait_time": 12, "sample_count": 20, "updated_at": "2022-02-01T13:00:00"},
+        {"day": "Wednesday", "hour": 13, "wait_time": 9, "sample_count": 20, "updated_at": "2022-02-01T13:00:00"},
+        {"day": "Thursday", "hour": 13, "wait_time": 15, "sample_count": 20, "updated_at": "2022-02-01T13:00:00"},
+        {"day": "Friday", "hour": 13, "wait_time": 14, "sample_count": 20, "updated_at": "2022-02-01T13:00:00"},
+        {"day": "Saturday", "hour": 13, "wait_time": 8, "sample_count": 20, "updated_at": "2022-02-01T13:00:00"}
+      ]
+    ],
+    [
+      "loc_3",
+      "Location Three",
+      true,
+      "789 Oak St",
+      "(34.56,78.90)",
+      ["bar"],
+      [
+        {"photo": "url3"}
+      ],
+      "http://locationthree.example.com",
+      [
+        {"day": "Sunday", "open_time": "10:00", "close_time": "18:00"},
+        {"day": "Monday", "open_time": "10:00", "close_time": "18:00"},
+        {"day": "Tuesday", "open_time": "10:00", "close_time": "18:00"},
+        {"day": "Wednesday", "open_time": "10:00", "close_time": "18:00"},
+        {"day": "Thursday", "open_time": "10:00", "close_time": "18:00"},
+        {"day": "Friday", "open_time": "10:00", "close_time": "18:00"},
+        {"day": "Saturday", "open_time": "10:00", "close_time": "18:00"}
+      ],
+      [
+        {"day": "Sunday", "hour": 14, "wait_time": 6, "sample_count": 15, "updated_at": "2022-03-01T14:00:00"},
+        {"day": "Monday", "hour": 14, "wait_time": 7, "sample_count": 15, "updated_at": "2022-03-01T14:00:00"},
+        {"day": "Tuesday", "hour": 14, "wait_time": 8, "sample_count": 15, "updated_at": "2022-03-01T14:00:00"},
+        {"day": "Wednesday", "hour": 14, "wait_time": 5, "sample_count": 15, "updated_at": "2022-03-01T14:00:00"},
+        {"day": "Thursday", "hour": 14, "wait_time": 9, "sample_count": 15, "updated_at": "2022-03-01T14:00:00"},
+        {"day": "Friday", "hour": 14, "wait_time": 4, "sample_count": 15, "updated_at": "2022-03-01T14:00:00"},
+        {"day": "Saturday", "hour": 14, "wait_time": 10, "sample_count": 15, "updated_at": "2022-03-01T14:00:00"}
+      ]
+    ],
+    [
+      "loc_4",
+      "Location Four",
+      false,
+      "101 Pine St",
+      "(45.67,89.01)",
+      ["store"],
+      [
+        {"photo": "url4"}
+      ],
+      "http://locationfour.example.com",
+      [
+        {"day": "Sunday", "open_time": "07:00", "close_time": "15:00"},
+        {"day": "Monday", "open_time": "07:00", "close_time": "15:00"},
+        {"day": "Tuesday", "open_time": "07:00", "close_time": "15:00"},
+        {"day": "Wednesday", "open_time": "07:00", "close_time": "15:00"},
+        {"day": "Thursday", "open_time": "07:00", "close_time": "15:00"},
+        {"day": "Friday", "open_time": "07:00", "close_time": "15:00"},
+        {"day": "Saturday", "open_time": "08:00", "close_time": "14:00"}
+      ],
+      [
+        {"day": "Sunday", "hour": 11, "wait_time": 4, "sample_count": 8, "updated_at": "2022-04-01T11:00:00"},
+        {"day": "Monday", "hour": 11, "wait_time": 5, "sample_count": 8, "updated_at": "2022-04-01T11:00:00"},
+        {"day": "Tuesday", "hour": 11, "wait_time": 3, "sample_count": 8, "updated_at": "2022-04-01T11:00:00"},
+        {"day": "Wednesday", "hour": 11, "wait_time": 6, "sample_count": 8, "updated_at": "2022-04-01T11:00:00"},
+        {"day": "Thursday", "hour": 11, "wait_time": 7, "sample_count": 8, "updated_at": "2022-04-01T11:00:00"},
+        {"day": "Friday", "hour": 11, "wait_time": 8, "sample_count": 8, "updated_at": "2022-04-01T11:00:00"},
+        {"day": "Saturday", "hour": 11, "wait_time": 2, "sample_count": 8, "updated_at": "2022-04-01T11:00:00"}
+      ]
+    ],
+    [
+      "loc_5",
+      "Location Five",
+      true,
+      "202 Maple St",
+      "(56.78,90.12)",
+      ["diner"],
+      [
+        {"photo": "url5"}
+      ],
+      "http://locationfive.example.com",
+      [
+        {"day": "Sunday", "open_time": "11:00", "close_time": "19:00"},
+        {"day": "Monday", "open_time": "11:00", "close_time": "19:00"},
+        {"day": "Tuesday", "open_time": "11:00", "close_time": "19:00"},
+        {"day": "Wednesday", "open_time": "11:00", "close_time": "19:00"},
+        {"day": "Thursday", "open_time": "11:00", "close_time": "19:00"},
+        {"day": "Friday", "open_time": "11:00", "close_time": "19:00"},
+        {"day": "Saturday", "open_time": "12:00", "close_time": "18:00"}
+      ],
+      [
+        {"day": "Sunday", "hour": 15, "wait_time": 7, "sample_count": 12, "updated_at": "2022-05-01T15:00:00"},
+        {"day": "Monday", "hour": 15, "wait_time": 6, "sample_count": 12, "updated_at": "2022-05-01T15:00:00"},
+        {"day": "Tuesday", "hour": 15, "wait_time": 8, "sample_count": 12, "updated_at": "2022-05-01T15:00:00"},
+        {"day": "Wednesday", "hour": 15, "wait_time": 9, "sample_count": 12, "updated_at": "2022-05-01T15:00:00"},
+        {"day": "Thursday", "hour": 15, "wait_time": 5, "sample_count": 12, "updated_at": "2022-05-01T15:00:00"},
+        {"day": "Friday", "hour": 15, "wait_time": 7, "sample_count": 12, "updated_at": "2022-05-01T15:00:00"},
+        {"day": "Saturday", "hour": 15, "wait_time": 6, "sample_count": 12, "updated_at": "2022-05-01T15:00:00"}
+      ]
+    ]
+  ]

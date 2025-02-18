@@ -11,6 +11,13 @@ sys.path.insert(0, secret_loc)
 from secret import get_secret
 
 class GetPlaceDetailsClass(FlaskClass):
+    def __init__(self):
+        return
+    
+
+    def get_date(self):
+        return "hello"
+
     def get_db_connection(self):
         user, password = get_secret()
         connection = psycopg2.connect(
