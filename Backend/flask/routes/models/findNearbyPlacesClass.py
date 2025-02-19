@@ -1,4 +1,5 @@
-from .flaskClass import FlaskClass
+from flaskClass import FlaskClass
+from getPlaceDetails import GetPlaceDetailsClass
 from dotenv import load_dotenv
 import os
 import requests
@@ -94,14 +95,10 @@ class FindNearbyPlacesClass(FlaskClass):
             }
         
         # Set up the field mask as required.
-        
         field_mask = (
-            "places.currentOpeningHours,places.delivery,places.formattedAddress,"
-            "places.displayName,places.location,places.photos,"
-            "places.types,places.websiteUri,places.id"
+            "places.id"
         )
         
-
         headers = {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": api_key,
@@ -187,17 +184,15 @@ class FindNearbyPlacesClass(FlaskClass):
             return google_results
         
         # Step 2: Extract place IDs from Google Resutls
-        # place_ids will contain a list of IDs for all valid place objects returned by the API
         places = google_results.get("places", [])
-        place_ids = [place.get("id") for place in places if place.get("id")]
 
+        
 
         # Step 3: Get custom data from our own datebase
         # This data will store the wait times we have assocaited with places
         # This is going to pretty much just be wait time data
-        # TODO: Replace this with a query to our own database
-        # ex: cutom_date = self.getCustomData(place_ids, filters)
-        custom_data = None
+        details_instance = GetPlaceDetailsClass()
+        custom_data = details_instance.get_complete_place_details(places)
 
         # Step 4: Merge custom data and apply filters
         # If avg_wait_time is specified, then the results will be sorted in order of avg_wait_time

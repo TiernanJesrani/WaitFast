@@ -1,5 +1,6 @@
 from flaskClass import FlaskClass
 from dotenv import load_dotenv
+from findNearbyPlacesClass import FindNearbyPlacesClass
 import os
 import requests
 
@@ -35,13 +36,13 @@ class PlaygroundClass(FlaskClass):
         headers = {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": api_key,
-            "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.id"
+            "X-Goog-FieldMask": "places.displayName,places.id,places.place_id"
         }
 
         # Create the payload with the user-provided query.
         payload = {
             "textQuery": query,
-            "pageSize": 5  # Adjust the number of results as needed
+            "pageSize": 1  # Adjust the number of results as needed
         }
 
         try:
@@ -53,6 +54,48 @@ class PlaygroundClass(FlaskClass):
                 "error": "RequestException",
                 "message": str(e)
         }
+    
+    def get_place_details(self, place_id):
+        """
+        Retrieves detailed information for a specific place using the new Google Places API.
+        Parameters:
+            place_id (str): The unique identifier for the place you want details on.
+        Returns:
+            dict or None: A dictionary containing the place details, or None if there's an error.
+        """
+        api_key = os.getenv("GOOGLE_PLACES_API_KEY")
+        if not api_key:
+            return {
+                "error": "APIKeyMissing",
+                "message": "Missing API key"
+            }
+    
+        # Construct the endpoint URL using the new API standard
+        url = f"https://places.googleapis.com/v1/places/{place_id}"
+
+        field_mask = (
+            "currentOpeningHours,delivery,formattedAddress,"
+            "displayName,location,photos,"
+            "types,websiteUri,id"
+        )
+    
+        # Define the query parameters with desired fields.
+        headers = {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": api_key,
+            "X-Goog-FieldMask": field_mask
+        }
+    
+        try:
+            # Make the GET request (Note: parameters are passed via the URL)
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()  # Raise exception for HTTP errors
+        
+            # Parse and return the JSON data
+            return response.json()
+        except Exception as e:
+            print("Error in get_place_details:", e)
+            return None
 
     """
     Dummy function to demonstrate how you can search for a restaurant
@@ -71,9 +114,22 @@ class PlaygroundClass(FlaskClass):
 if __name__ == "__main__":
 
     # Configure the environment variables
-    configure()
+    
 
-    nearbyRestaurant = PlaygroundClass(regInfo={})
+    find_nearby_places = FindNearbyPlacesClass()
 
-    nearbyRestaurant.dummy_search_restaurant()
+    restuarants_in_ann_arbor = "Restaurants in Ann Arbor"
+    no_filters = {}
+    center_ann_arbor = {
+        "latitude": 42.2,
+        "longitude": 83.7
+    }
+    place_id = "ChIJ0518hECuPIgRQOgqLkeI6fA"
+    playground = PlaygroundClass(regInfo={})
+
+    
+    result = find_nearby_places.getFilteredNearbyPlaces(restuarants_in_ann_arbor, no_filters, center_ann_arbor)
+    
+
+
     

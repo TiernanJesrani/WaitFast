@@ -1,0 +1,2 @@
+import pytest
+from Backend.flask.routes.models.getPlaceDetails import GetPlaceDetailsClass
