@@ -129,10 +129,13 @@ if __name__ == "__main__":
 
     bars_in_ann_arbor = "Bars in Ann Arbor"
 
+    fast_food_in_ann_arbor = "fast food in Ann Arbor"
     
     result = find_nearby_places.getFilteredNearbyPlaces(restuarants_in_ann_arbor, no_filters, center_ann_arbor)
 
     result2 = find_nearby_places.getFilteredNearbyPlaces(bars_in_ann_arbor, no_filters, center_ann_arbor)
+
+    result3 = find_nearby_places.getFilteredNearbyPlaces(fast_food_in_ann_arbor, no_filters, center_ann_arbor)
     
 
 
