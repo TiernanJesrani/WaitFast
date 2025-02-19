@@ -3,7 +3,7 @@ import os
 import requests
 import sys
 import json
-from .flaskClass import FlaskClass
+from flaskClass import FlaskClass
 
 current_dir = os.path.dirname(__file__)
 secret_loc = os.path.abspath(os.path.join(current_dir, '..', '..', '..', 'database'))
@@ -66,7 +66,7 @@ class GetPlaceDetailsClass(FlaskClass):
                     l.latlong, 
                     l.type, 
                     l.photos, 
-                    l.websiteURI.
+                    l.websiteURI,
                     COALESCE(oh_agg.opening_hours, '[]'::json) AS opening_hours,
                     COALESCE(wt_agg.wait_times, '[]'::json) AS wait_times
                 FROM locations l
@@ -85,7 +85,7 @@ class GetPlaceDetailsClass(FlaskClass):
                     SELECT
                         location_id,
                         json_agg(json_build_object(
-                            'day', day
+                            'day', day,
                             'hour', hour,
                             'wait_time', wait_time,
                             'sample_count', sample_count,
@@ -136,40 +136,45 @@ class GetPlaceDetailsClass(FlaskClass):
     
     def fetch_api_place_details(self, place_id):
 
-        api_url = "https://places.googleapis.com/v1/places:searchText"
+        """
+        Retrieves detailed information for a specific place using the new Google Places API.
+        Parameters:
+            place_id (str): The unique identifier for the place you want details on.
+        Returns:
+            dict or None: A dictionary containing the place details, or None if there's an error.
+        """
         api_key = os.getenv("GOOGLE_PLACES_API_KEY")
         if not api_key:
             return {
                 "error": "APIKeyMissing",
                 "message": "Missing API key"
             }
-        
-        field_mask = (
-            "places.currentOpeningHours,places.delivery,places.formattedAddress,"
-            "places.displayName,places.location,places.photos,"
-            "places.types,places.websiteUri,places.id"
-        )
+    
+        # Construct the endpoint URL using the new API standard
+        url = f"https://places.googleapis.com/v1/places/{place_id}"
 
+        field_mask = (
+            "currentOpeningHours,delivery,formattedAddress,"
+            "displayName,location,photos,"
+            "types,websiteUri,id"
+        )
+    
+        # Define the query parameters with desired fields.
         headers = {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": api_key,
             "X-Goog-FieldMask": field_mask
-        } 
-
-        payload = {
-            "query": place_id,
-            "pageSize": 1
         }
+    
         try:
-            response = requests.get(api_url, json=payload, headers=headers)
-            response.raise_for_status()
-            data = response.json()
-            if data.get("places"):
-                return data["places"][0]
-            else:
-                return None
+            # Make the GET request (Note: parameters are passed via the URL)
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()  # Raise exception for HTTP errors
+        
+            # Parse and return the JSON data
+            return response.json()
         except Exception as e:
-            print("Error in fetch_api_place_details:", e)
+            print("Error in get_place_details:", e)
             return None
         
     """
@@ -189,11 +194,17 @@ class GetPlaceDetailsClass(FlaskClass):
 
         try:
             place_id = place_data.get("id")
-            display_name = place_data.get("displayName") or place_data.get("name") or ""
+            
+            display_name_field = place_data.get("displayName") or place_data.get("name") or ""
+            if isinstance(display_name_field, dict):
+                display_name = display_name_field.get("text", "")
+            else:
+                display_name = display_name_field
+
             delivery = place_data.get("delivery", False)
-
+            
             address = place_data.get("formattedAddress") or ""
-
+           
             # Extract the location details
             location = place_data.get("location")
             lat = location.get("lat") if location else None
@@ -207,7 +218,7 @@ class GetPlaceDetailsClass(FlaskClass):
 
             query = """
                 INSERT INTO locations (place_id, displayName, delivery, address, latlong, type, photos, websiteURI)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING place_id, displayName, delivery, address, latlong, type, photos, websiteURI;
             """
             cursor.execute(query, (place_id, display_name, delivery, address, latlong, types_field, photos, websiteURI))

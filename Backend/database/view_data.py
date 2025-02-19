@@ -1,10 +1,11 @@
 import psycopg2
+import pandas as pd
 from secret import get_secret
 
 def view_locations():
     user, password = get_secret()
     connection = psycopg2.connect(
-        dbname="your_db_name",  # Replace with your database name
+        dbname="",  # Replace with your database name
         user=user,
         password=password,
         host="wait-fast.cwlesuqwe9fs.us-east-1.rds.amazonaws.com",
@@ -18,5 +19,25 @@ def view_locations():
     cursor.close()
     connection.close()
 
+def export_locations_to_csv(csv_filename="locations.csv"):
+    user, password = get_secret()
+    connection = psycopg2.connect(
+        dbname="",  # Replace with your database name
+        user=user,
+        password=password,
+        host="wait-fast.cwlesuqwe9fs.us-east-1.rds.amazonaws.com",
+        port="5432"
+    )
+    
+    query = "SELECT * FROM locations;"
+    df = pd.read_sql(query, connection)
+    
+    # Export DataFrame to a CSV file.
+    df.to_csv(csv_filename, index=False)
+    
+    print(f"Data exported to {csv_filename}")
+    
+    connection.close()  
+
 if __name__ == '__main__':
-    view_locations()
+    export_locations_to_csv()

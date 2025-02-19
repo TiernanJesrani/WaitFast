@@ -1,5 +1,5 @@
-from .flaskClass import FlaskClass
-from .getPlaceDetails import GetPlaceDetailsClass
+from flaskClass import FlaskClass
+from getPlaceDetails import GetPlaceDetailsClass
 from dotenv import load_dotenv
 import os
 import requests
@@ -186,12 +186,11 @@ class FindNearbyPlacesClass(FlaskClass):
         # Step 2: Extract place IDs from Google Resutls
         places = google_results.get("places", [])
 
+        
+
         # Step 3: Get custom data from our own datebase
         # This data will store the wait times we have assocaited with places
         # This is going to pretty much just be wait time data
-        # TODO: Replace this with a query to our own database
-        # ex: cutom_date = self.getCustomData(place_ids, filters)
-        custom_data = None
         details_instance = GetPlaceDetailsClass()
         custom_data = details_instance.get_complete_place_details(places)
 
