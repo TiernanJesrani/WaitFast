@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Place: Identifiable {
+struct Place: Identifiable, Decodable {
     let id = UUID()
     let name: String
     let category: String // "food" or "bar"
