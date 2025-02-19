@@ -1,4 +1,5 @@
 from .flaskClass import FlaskClass
+from ....database import view_locations
 
 class AttractionClass(FlaskClass):
     def get_data(self):
@@ -6,9 +7,21 @@ class AttractionClass(FlaskClass):
         return register_info
     
     def get_register_info(self):
-        return [
-            {"name": "Joe's hello", "category": "food", "distance": 0.5, "liveWaitTime": "5 min"},
-            {"name": "Skeeps", "category": "bar", "distance": 1.2, "liveWaitTime": "10 min"},
-            {"name": "Panch", "category": "food", "distance": 2.0, "liveWaitTime": "15 min"},
-            {"name": "Ricks", "category": "bar", "distance": 0.8, "liveWaitTime": "20 min"}
-        ]
+        rows = view_locations()
+        reg_info = []
+        for row in rows:
+            t = "food"
+            for types in row[6]:
+                if types == "bar":
+                    t = "bar"
+            reg_info.append({"id": row[0], "name": row[2], "category": t, "distance": 0.1, "liveWaitTime": "5 min"})
+
+        return reg_info
+    
+
+def main():
+    inst = AttractionClass(1)
+    print(inst.get_data())
+
+if __name__ == "__main__":
+    main()
