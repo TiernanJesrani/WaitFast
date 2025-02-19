@@ -8,16 +8,56 @@
 import Foundation
 
 class PlaceViewModel: ObservableObject {
-    @Published var places: [Place] = [
-        Place(name: "Joe's", category: "food", distance: 0.5, liveWaitTime: "5 min"),
-        Place(name: "Skeeps", category: "bar", distance: 1.2, liveWaitTime: "10 min"),
-        Place(name: "Panch", category: "food", distance: 2.0, liveWaitTime: "15 min"),
-        Place(name: "Ricks", category: "bar", distance: 0.8, liveWaitTime: "20 min")
-    ]
+    @Published var places: [Place] = []
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String? = nil
     
     @Published var searchText: String = ""
     @Published var selectedCategory: String = "All"
     @Published var maxDistance: Double = 5.0
+    
+    init() {
+        Task {
+            await fetchAttractions()
+//            await fetchDummyData()
+        }
+    }
+    
+    func fetchAttractions() async {
+        isLoading = true
+        errorMessage = nil
+        
+        guard let url = URL(string: "http://127.0.0.1:5000/attractions/") else {
+            errorMessage = "Invalid URL"
+            isLoading = false
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+                errorMessage = "Server error, please try again later."
+                isLoading = false
+                return
+            }
+
+            let decoder = JSONDecoder()
+            
+            // MARK: - Retrieve and process api data
+            self.places = try decoder.decode([Place].self, from: data)
+            
+        } catch {
+            errorMessage = "Failed to fetch data: \(error.localizedDescription)"
+            print("Error while fetching data", error)
+        }
+        
+        isLoading = false
+    }
     
     var filteredPlaces: [Place] {
         places.filter { place in
