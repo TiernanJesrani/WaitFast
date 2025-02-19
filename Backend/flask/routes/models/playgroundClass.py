@@ -127,8 +127,12 @@ if __name__ == "__main__":
     place_id = "ChIJ0518hECuPIgRQOgqLkeI6fA"
     playground = PlaygroundClass(regInfo={})
 
+    bars_in_ann_arbor = "Bars in Ann Arbor"
+
     
     result = find_nearby_places.getFilteredNearbyPlaces(restuarants_in_ann_arbor, no_filters, center_ann_arbor)
+
+    result2 = find_nearby_places.getFilteredNearbyPlaces(bars_in_ann_arbor, no_filters, center_ann_arbor)
     
 
 
