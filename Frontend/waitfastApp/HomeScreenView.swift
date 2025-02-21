@@ -7,9 +7,15 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 struct HomeScreenView: View {
     @StateObject var viewModel = PlaceViewModel()
+    
+    @StateObject var deviceLocationService = DeviceLocationService.shared
+
+    @State var tokens: Set<AnyCancellable> = []
+    @State var coordinates: (lat: Double, lon: Double) = (0, 0)
     
     var body: some View {
         NavigationView {
@@ -72,6 +78,11 @@ struct HomeScreenView: View {
                 }
                 .listStyle(PlainListStyle())
             }
+            .onAppear {
+                observeCoordinateUpdates()
+                observeDeniedLocationAccess()
+                deviceLocationService.requestLocationUpdates()
+            }
             .background(Color(.systemGray6).edgesIgnoringSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -87,5 +98,29 @@ struct HomeScreenView: View {
                 }
             }
         }
+    }
+    func observeCoordinateUpdates() {
+        deviceLocationService.coordinatesPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                print("Handle \(completion) for error and finished subscription.")
+            } receiveValue: { coordinates in
+                print(coordinates)
+                self.coordinates = (coordinates.latitude, coordinates.longitude)
+                Task {
+                    await viewModel.fetchAttractions(lat: self.coordinates.lat, lon: self.coordinates.lon)
+                }
+                print(self.coordinates)
+            }
+            .store(in: &tokens)
+    }
+
+    func observeDeniedLocationAccess() {
+        deviceLocationService.deniedLocationAccessPublisher
+            .receive(on: DispatchQueue.main)
+            .sink {
+                print("Handle access denied event, possibly with an alert.")
+            }
+            .store(in: &tokens)
     }
 }
