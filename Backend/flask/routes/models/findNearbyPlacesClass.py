@@ -150,7 +150,7 @@ class FindNearbyPlacesClass(FlaskClass):
             if location_restriction:
                 payload["locationRestriction"] = location_restriction
         
-        print(location_restriction)
+        
 
 
         

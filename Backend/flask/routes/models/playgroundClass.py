@@ -140,8 +140,8 @@ if __name__ == "__main__":
     playground = PlaygroundClass(regInfo={})
 
     
-    result = find_nearby_places.getFilteredNearbyPlaces(no_query, restaurant_type, center_long_grove)
-    print(result)
+    result = find_nearby_places.getFilteredNearbyPlaces(no_query, restaurant_type, center_lincolnshire)
+    
 
 
     
