@@ -207,8 +207,8 @@ class GetPlaceDetailsClass(FlaskClass):
            
             # Extract the location details
             location = place_data.get("location")
-            lat = location.get("lat") if location else None
-            lng = location.get("lng") if location else None
+            lat = location.get("latitude") if location else None
+            lng = location.get("longitude") if location else None
             latlong = f"({lng}, {lat})" if (lat is not None and lng is not None) else None
 
             types_field = place_data.get("types", [])

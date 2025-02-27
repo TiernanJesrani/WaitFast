@@ -131,6 +131,11 @@ if __name__ == "__main__":
         "latitude": 42.17,
         "longitude": -87.99
     }
+
+    center_lincolnshire = {
+        "latitude": 40.14,
+        "longitude": -89.36
+    }
     place_id = "ChIJ0518hECuPIgRQOgqLkeI6fA"
     playground = PlaygroundClass(regInfo={})
 
