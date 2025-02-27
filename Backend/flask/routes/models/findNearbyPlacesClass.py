@@ -150,12 +150,7 @@ class FindNearbyPlacesClass(FlaskClass):
             if location_restriction:
                 payload["locationRestriction"] = location_restriction
         
-        
-
-
-        
         # Make the request
-        print(payload)
         try:
             response = requests.post(api_url, json=payload, headers=headers)
             response.raise_for_status() # Raise exception if HTTP status error occurs

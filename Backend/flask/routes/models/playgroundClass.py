@@ -1,6 +1,7 @@
 from flaskClass import FlaskClass
 from dotenv import load_dotenv
 from findNearbyPlacesClass import FindNearbyPlacesClass
+from getPlaceDetails import GetPlaceDetailsClass
 import os
 import requests
 
@@ -36,7 +37,7 @@ class PlaygroundClass(FlaskClass):
         headers = {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": api_key,
-            "X-Goog-FieldMask": "places.displayName,places.id,places.place_id"
+            "X-Goog-FieldMask": "places.id,places.regularOpeningHours"
         }
 
         # Create the payload with the user-provided query.
@@ -136,11 +137,12 @@ if __name__ == "__main__":
         "latitude": 40.14,
         "longitude": -89.36
     }
-    place_id = "ChIJ0518hECuPIgRQOgqLkeI6fA"
-    playground = PlaygroundClass(regInfo={})
+    
+    result = find_nearby_places.getFilteredNearbyPlaces(restuarants_in_ann_arbor, no_filters, center_ann_arbor)
+
+
 
     
-    result = find_nearby_places.getFilteredNearbyPlaces(no_query, restaurant_type, center_lincolnshire)
     
 
 
