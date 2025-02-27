@@ -119,17 +119,24 @@ if __name__ == "__main__":
     find_nearby_places = FindNearbyPlacesClass()
 
     restuarants_in_ann_arbor = "Restaurants in Ann Arbor"
+    no_query = ""
     no_filters = {}
+    restaurant_type = {"type": "restaurant"}
     center_ann_arbor = {
         "latitude": 42.2,
         "longitude": 83.7
+    }
+
+    center_long_grove = {
+        "latitude": 42.17,
+        "longitude": -87.99
     }
     place_id = "ChIJ0518hECuPIgRQOgqLkeI6fA"
     playground = PlaygroundClass(regInfo={})
 
     
-    result = find_nearby_places.getFilteredNearbyPlaces(restuarants_in_ann_arbor, no_filters, center_ann_arbor)
-    
+    result = find_nearby_places.getFilteredNearbyPlaces(no_query, restaurant_type, center_long_grove)
+    print(result)
 
 
     
