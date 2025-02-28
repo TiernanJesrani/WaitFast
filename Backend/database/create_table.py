@@ -13,7 +13,7 @@ def drop_table_if_exists(connection, table_name):
     finally:
         cursor.close()
 
-
+# TODO: Delete the two wait_times tables and create them again
 
 def create_table():
     # Connect to the database
@@ -28,7 +28,8 @@ def create_table():
         )
         cursor = connection.cursor()
 
-      
+        drop_table_if_exists(connection, "wait_times")
+        drop_table_if_exists(connection, "wait_times_today")
         # Define table schema 
         """
         This is how we will store our operating times
@@ -97,16 +98,29 @@ def create_table():
             location_id INTEGER NOT NULL REFERENCES locations(id) ON DELETE CASCADE,
             day TEXT NOT NULL CHECK (day IN ('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday')),
             hour INTEGER NOT NULL CHECK (hour BETWEEN 0 and 23),
+            avg_wait_time_per_hour JSONB,
             live_wait_time INTEGER NOT NULL,
             sample_count INTEGER DEFAULT 0,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(location_id, day, hour)
         );
         """
+
+        create_wait_time_submissions_table = """ 
+        CREATE TABLE IF NOT EXISTS wait_time_submissions (
+            id SERIAL PRIMARY KEY,
+            location_id INTEGER NOT NULL REFERENCES locations(id) ON DELETE CASCADE,
+            day TEXT NOT NULL CHECK (day IN ('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')),
+            hour INTEGER NOT NULL CHECK (hour BETWEEN 0 and 23),
+            wait_time INTEGER NOT NULL,
+            submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """
         
         cursor.execute(create_locations_table)
         cursor.execute(create_wait_times_table)
         cursor.execute(create_wait_times_today_table)
+        cursor.execute(create_wait_time_submissions_table)
         connection.commit()
         print("Tables created successfully")
 
