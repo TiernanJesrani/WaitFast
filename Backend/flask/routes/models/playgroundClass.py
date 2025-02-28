@@ -1,9 +1,17 @@
 from flaskClass import FlaskClass
 from dotenv import load_dotenv
+import time
 from findNearbyPlacesClass import FindNearbyPlacesClass
 from getPlaceDetails import GetPlaceDetailsClass
-import os
 import requests
+import sys
+import os
+# Add the parent directory (project root) to sys.path.
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../'))
+sys.path.insert(0, project_root)
+from waitTimeSubmissionClass import WaitTimeSubmissionClass
+
+
 
 def configure():
     load_dotenv()
@@ -118,6 +126,7 @@ if __name__ == "__main__":
     
 
     find_nearby_places = FindNearbyPlacesClass()
+    wait_time_obj = WaitTimeSubmissionClass()
 
     restuarants_in_ann_arbor = "Restaurants in Ann Arbor"
     no_query = ""
@@ -137,13 +146,14 @@ if __name__ == "__main__":
         "latitude": 40.14,
         "longitude": -89.36
     }
-    
-    result = find_nearby_places.getFilteredNearbyPlaces(restuarants_in_ann_arbor, no_filters, center_ann_arbor)
+
+    print("Submitting test wait times...")
+    wait_time_obj.submit_wait_time(location_id=1, wait_time=15)
+    wait_time_obj.submit_wait_time(location_id=1, wait_time=20)
+    wait_time_obj.submit_wait_time(location_id=1, wait_time=10)  
 
 
+    time.sleep(5)
 
-    
-    
-
-
+    wait_time_obj.daily_archive_all_locations()
     

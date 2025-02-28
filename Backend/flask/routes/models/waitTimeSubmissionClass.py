@@ -7,7 +7,7 @@ import json
 def get_db_connection():
     user, password = get_secret()
     connection = psycopg2.connect(
-        dbname="your_db_name",
+        dbname="",
         user=user,
         password=password,
         host="wait-fast.cwlesuqwe9fs.us-east-1.rds.amazonaws.com",
@@ -17,7 +17,12 @@ def get_db_connection():
 
 class WaitTimeSubmissionClass(FlaskClass):
 
+    def __init__(self):
+        return
+    
 
+    def get_date(self):
+        return "hello"
     """
     Submits a wait time for a given location and updates the live wait time average.
     
@@ -119,7 +124,7 @@ class WaitTimeSubmissionClass(FlaskClass):
     This version explicitly loops through every location_id from the locations table.
     """
 
-    def daily_archive_all_locations():
+    def daily_archive_all_locations(self):
         connection = get_db_connection()
         try:
             cursor = connection.cursor()
@@ -132,7 +137,7 @@ class WaitTimeSubmissionClass(FlaskClass):
             for location_id in all_locations:
                 # Retrieve live data for this location
                 cursor.execute("""
-                    SELECT day, hour, avg_wait_time_per_hor
+                    SELECT day, hour, avg_wait_time_per_hour
                     FROM wait_times_today
                                WHERE location_id = %s
                     """, (location_id,))
@@ -141,8 +146,78 @@ class WaitTimeSubmissionClass(FlaskClass):
                     # If there is no live data for this location, skip it
                     continue
                 
-                # Build a nested dictionary of the data from todya { day: {"hour": value,..,},}
+                # Build a nested dictionary of the data from today{ day: {"hour": value,..,},}
                 wait_data_today = {}
+                # These are the rows in the wait_times_today table
                 for day, hour, avg_wait_json in rows:
-                    if isinstance(avg_wait_json, str):
+                    if not isinstance(avg_wait_json, dict):
                         hour_data = json.loads(avg_wait_json)
+                    else:
+                        hour_data = avg_wait_json
+                    # Ensure we use the hour as a string
+                    hour_key = str(hour)
+                    if hour_key not in hour_data:
+                        continue
+                    avg_hour_value = hour_data[hour_key]
+
+                    if day not in wait_data_today:
+                        wait_data_today[day] = {}
+                    wait_data_today[day][hour_key] = avg_hour_value
+            # 3) Retrieve existing historical data from wait_times for this location
+            cursor.execute(""" 
+                    SELECT wait_times_data FROM wait_times WHERE location_id = %s;
+                    """, (location_id, ))
+            result = cursor.fetchone()
+
+            if result is None:
+                # No historical record exists; use the live data as the new historical data
+                new_hist_data = wait_data_today
+                cursor.execute("""
+                    INSERT INTO wait_times (location_id, wait_times_data, updated_at)
+                    VALUES (%s, %s, NOW());
+                """, (location_id, json.dumps(new_hist_data)))
+            else:
+                hist_wait_data = result[0]
+                if not isinstance(hist_wait_data, dict):
+                    hist_wait_data = json.loads(hist_wait_data)
+                # 4 Merge live data into the historical data
+                for day, live_hours in wait_data_today.items():
+                    # If the day doesn't exist, just add it to the historical data
+                    # When you take the average then you will just be adding it to itself and dividing by 2
+                    if day not in hist_wait_data:
+                        hist_wait_data[day] = live_hours
+                    else:
+                        # If the day already exists then for each hour in the live data for that day
+                        for hour, live_value in live_hours.items():
+                            if hour in hist_wait_data[day]:
+                                old_value = hist_wait_data[day][hour]
+                                merged_value = int(round((old_value + live_value) / 2))
+                                hist_wait_data[day][hour] = merged_value
+                            else:
+                                hist_wait_data[day][hour] = live_value
+                
+                new_hist_data = hist_wait_data
+                # 5) Update the historical record
+                cursor.execute("""
+                        UPDATE wait_times
+                        SET wait_times_data = %s, updated_at = NOW()
+                        WHERE location_id = %s;
+                    """, (json.dumps(new_hist_data), location_id))
+            connection.commit()
+            print("Historical wait_times updated for all locations")
+
+            # 6) Clear the live data tables
+            cursor.execute("TRUNCATE TABLE wait_times_today;")
+            cursor.execute("TRUNCATE TABLE wait_time_submissions;")
+            connection.commit()
+            print("wait_times_today and wait_time_submissions cleared")
+        except Exception as e:
+            connection.rollback()
+            print("Error during daily archive:", e)
+        finally:
+            cursor.close()
+            connection.close()
+
+
+
+                    
