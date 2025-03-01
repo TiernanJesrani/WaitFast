@@ -29,3 +29,10 @@ struct DetailView: View {
         #endif
     }
 }
+
+/*
+NOTES:
+    Views are reusable building blocks for creating our user-interface
+    Place is a constant that holds the data for the place that will be displayed
+    Should this be a constant considering this value is going to be changed
+*/

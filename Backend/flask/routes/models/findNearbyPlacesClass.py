@@ -15,8 +15,10 @@ class FindNearbyPlacesClass(FlaskClass):
         return
     
 
-    def get_date(self):
-        return "hello"
+    def get_data(self, query, filters, user_location=None):
+        nearby_places = self.getFilteredNearbyPlaces(query, filters, user_location)
+        return nearby_places
+        
     
     """
         Builds a rectangular locationRestriction based on the user's location and the provided maximum distance.
