@@ -1,8 +1,17 @@
 from flaskClass import FlaskClass
 from dotenv import load_dotenv
+import time
 from findNearbyPlacesClass import FindNearbyPlacesClass
-import os
+from getPlaceDetails import GetPlaceDetailsClass
 import requests
+import sys
+import os
+# Add the parent directory (project root) to sys.path.
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../'))
+sys.path.insert(0, project_root)
+from waitTimeSubmissionClass import WaitTimeSubmissionClass
+
+
 
 def configure():
     load_dotenv()
@@ -36,7 +45,7 @@ class PlaygroundClass(FlaskClass):
         headers = {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": api_key,
-            "X-Goog-FieldMask": "places.displayName,places.id,places.place_id"
+            "X-Goog-FieldMask": "places.id,places.regularOpeningHours"
         }
 
         # Create the payload with the user-provided query.
@@ -117,19 +126,34 @@ if __name__ == "__main__":
     
 
     find_nearby_places = FindNearbyPlacesClass()
+    wait_time_obj = WaitTimeSubmissionClass()
 
     restuarants_in_ann_arbor = "Restaurants in Ann Arbor"
+    no_query = ""
     no_filters = {}
+    restaurant_type = {"type": "restaurant"}
     center_ann_arbor = {
         "latitude": 42.2,
         "longitude": 83.7
     }
-    place_id = "ChIJ0518hECuPIgRQOgqLkeI6fA"
-    playground = PlaygroundClass(regInfo={})
 
-    
-    result = find_nearby_places.getFilteredNearbyPlaces(restuarants_in_ann_arbor, no_filters, center_ann_arbor)
-    
+    center_long_grove = {
+        "latitude": 42.17,
+        "longitude": -87.99
+    }
+
+    center_lincolnshire = {
+        "latitude": 40.14,
+        "longitude": -89.36
+    }
+
+    print("Submitting test wait times...")
+    wait_time_obj.submit_wait_time(location_id=1, wait_time=15)
+    wait_time_obj.submit_wait_time(location_id=1, wait_time=20)
+    wait_time_obj.submit_wait_time(location_id=1, wait_time=10)  
 
 
+    time.sleep(5)
+
+    wait_time_obj.daily_archive_all_locations()
     

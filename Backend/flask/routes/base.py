@@ -1,5 +1,5 @@
 from flask import Flask
-from attractions import bp as attraction_bp
+from .attractions import bp as attraction_bp
 # from search import bp as search_bp
 # from company import bp as company_bp
 # from flashcard import bp as flashcard_bp

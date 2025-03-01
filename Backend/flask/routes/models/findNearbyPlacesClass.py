@@ -36,33 +36,26 @@ class FindNearbyPlacesClass(FlaskClass):
     """
     def build_location_restriction(self, filters, user_location):
         
-        if filters and user_location and "distance_max" in filters:
-            # Convert distance from miles to meteres
-            effective_distance = filters["distance_max"] * 1609.34 
-            user_lat = user_location.get("latitude")
-            user_lon = user_location.get("longitude")
-            # If we don't have latitude or longitude return an empty dict
-            if user_lat is None or user_lon is None:
-                return {}
+        # Convert distance from miles to meteres
+        if "distance_max" in filters and filters["distance_max"] is not None:
+            radius = filters["distance_max"] * 1609.34 
+        else:
+            radius = 3218.69 # Default is two miles 
+
+        latitude = user_location["latitude"]
+        longitude = user_location["longitude"]
+        # If we don't have latitude or longitude return an empty dict
+        if latitude is None or longitude is None:
+            return {}
             
-            # Calculate the change in degrees for the specified distance (in meters)
-            # Converting meters to degrees
-            delta_lat = effective_distance / 111111.0 # Approximate conversion: 1 degree latitude ≈ 111,111 meters
-            delta_lon = effective_distance / (111111.0 * cos(radians(user_lat)))  # Adjust by latitude
-
-            low_lat = user_lat - delta_lat
-            high_lat = user_lat + delta_lat
-            low_lon = user_lon - delta_lon
-            high_lon = user_lon + delta_lon
-
-            return {
-                "rectangle": {
-                    "low": {"latitude": low_lat, "longitude": low_lon},
-                    "high": {"latitude": high_lat, "longitude": high_lon}
-                }
-            } 
-
-        return {}          
+        return {
+            "circle": {
+                "center": {
+                    "latitude": latitude,
+                    "longitude": longitude},
+                "radius": radius
+            }
+        }         
 
     """
         Makes an API request using a text query and an optional filters dictionary.
@@ -86,7 +79,21 @@ class FindNearbyPlacesClass(FlaskClass):
     """
     def getNearbyPlaces(self, query, filters, user_location=None, page_token=None):
         
-        api_url = "https://places.googleapis.com/v1/places:searchText"
+        # If we have a query, then we use the searchText API
+        # If we don't have a query, then we use the searchNearby API
+
+        """
+        Notes:
+            We can do a nearby search if they don't specify a query, but we need a default radius
+
+        """
+        api_url_query = "https://places.googleapis.com/v1/places:searchText"
+        api_url_nearby = "https://places.googleapis.com/v1/places:searchNearby"
+
+        # Initialize the api_url to be a nearby search without a query
+        api_url = api_url_nearby
+        query_exists = False
+
         api_key = os.getenv("GOOGLE_PLACES_API_KEY")
         if not api_key:
             return {
@@ -124,24 +131,24 @@ class FindNearbyPlacesClass(FlaskClass):
         # Add the search query if a valid query is provided
         if query and query.strip() != "":
             payload["textQuery"] = query
+            query_exists = True
+            api_url = api_url_query
+            payload["pageSize"] = 5 # Set a default pageSize for a query api call
 
-        # Set a default pageSize if not provided in the filters
-        # TODO: Determine where it's best to define pageSize
-        if not (filters and "pageSize" in filters):
-            payload["pageSize"] = 5
 
         # Merge the filters into the payload
         # Special handling: if a filter contains a "type", apply it as "included type"
         if filters and isinstance(filters, dict):
             for key, value in filters.items():
                 if key == "type" and value is not None and value != "":
-                    payload["includedType"] = value
+                    payload["includedTypes"] = [value]
         
-        if user_location and filters and "distance_max" in filters:
+        # If a query doesn't exist then we have to do a nearby serach
+        if not query_exists:
             location_restriction = self.build_location_restriction(filters, user_location)
+            payload["maxResultCount"] = 15
             if location_restriction:
                 payload["locationRestriction"] = location_restriction
-
         
         # Make the request
         try:

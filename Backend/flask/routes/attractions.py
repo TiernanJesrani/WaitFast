@@ -1,6 +1,6 @@
 from flask import Flask
 import json
-from models.attractionClass import AttractionClass
+from .models.attractionClass import AttractionClass
 from flask import Blueprint
 
 bp = Blueprint('attractions', __name__)

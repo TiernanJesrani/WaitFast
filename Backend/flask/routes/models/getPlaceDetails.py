@@ -4,6 +4,7 @@ import requests
 import sys
 import json
 from flaskClass import FlaskClass
+import re
 
 current_dir = os.path.dirname(__file__)
 secret_loc = os.path.abspath(os.path.join(current_dir, '..', '..', '..', 'database'))
@@ -36,23 +37,6 @@ class GetPlaceDetailsClass(FlaskClass):
         if not place_ids:
             return local_places
         
-        # SQL Query Explanation:
-        # - The main FROM clause selects from the 'locations' table (aliased as l).
-        # - Two LEFT JOIN subqueries aggregate the records from 'opening_hours' and 'wait_times'
-        #   into JSON arrays.
-        #
-        #   a) The first subquery (aliased as oh_agg) groups rows in the opening_hours table by
-        #      location_id and uses json_agg with json_build_object to create a JSON array of objects.
-        #      Each object in the array has keys: day, open_time, and close_time.
-        #
-        #   b) The second subquery (aliased as wt_agg) groups rows in the wait_times table by
-        #      location_id and aggregates rows into a JSON array of objects that now include the day
-        #      field (in addition to hour, wait_time, sample_count, and updated_at).
-        #
-        # - COALESCE is used to return an empty JSON array ('[]') if there are no matching records in 
-        #   either joined table.
-        #
-        # - The WHERE clause filters locations based on the provided placed_ids.
         
         connection, cursor = self.get_db_connection()
         try: 
@@ -67,34 +51,11 @@ class GetPlaceDetailsClass(FlaskClass):
                     l.type, 
                     l.photos, 
                     l.websiteURI,
-                    COALESCE(oh_agg.opening_hours, '[]'::json) AS opening_hours,
-                    COALESCE(wt_agg.wait_times, '[]'::json) AS wait_times
+                    l.operating_time,
+                    COALESCE(wt.wait_times_data, '[]'::jsonb) AS wait_times  -- Select the wait_times JSONB field
                 FROM locations l
-                LEFT JOIN (
-                    SELECT 
-                        location_id,
-                        json_agg(json_build_object(
-                            'day', day,
-                            'open_time', open_time,
-                            'close_time', close_time
-                        )) AS opening_hours
-                    FROM opening_hours
-                    GROUP BY location_id
-                ) AS oh_agg ON oh_agg.location_id = l.id
-                LEFT JOIN (
-                    SELECT
-                        location_id,
-                        json_agg(json_build_object(
-                            'day', day,
-                            'hour', hour,
-                            'wait_time', wait_time,
-                            'sample_count', sample_count,
-                            'updated_at', updated_at
-                        )) AS wait_times
-                    FROM wait_times
-                    GROUP BY location_id
-                    ) AS wt_agg ON wt_agg.location_id = l.id
-                    WHERE l.place_id IN %s;
+                LEFT JOIN wait_times wt ON wt.location_id = l.id
+                WHERE l.place_id IN %s
             """
             cursor.execute(query, (format_ids, ))
             results = cursor.fetchall()
@@ -111,7 +72,7 @@ class GetPlaceDetailsClass(FlaskClass):
                     "type": row[5],
                     "photos": row[6],
                     "websiteURI": row[7],
-                    "opening_hours": row[8], # Aggregated JSON array for all opening hours
+                    "operating_time": row[8], # Aggregated JSON array for all opening hours
                     "wait_times": row[9] # Aggregated JSON array for all wait_times
                 }
             return local_places
@@ -156,7 +117,7 @@ class GetPlaceDetailsClass(FlaskClass):
         field_mask = (
             "currentOpeningHours,delivery,formattedAddress,"
             "displayName,location,photos,"
-            "types,websiteUri,id"
+            "types,websiteUri,id,regularOpeningHours"
         )
     
         # Define the query parameters with desired fields.
@@ -176,6 +137,42 @@ class GetPlaceDetailsClass(FlaskClass):
         except Exception as e:
             print("Error in get_place_details:", e)
             return None
+
+
+    """
+    Grabs the operating time from the google places api
+    """
+    def get_operating_time(self, place_data):
+        operating_time = {}
+        if "regularOpeningHours" in place_data:
+            
+            hours = place_data["regularOpeningHours"]
+            descriptions = hours.get("weekdayDescriptions", [])
+            for desc in descriptions:
+                
+                # Split the string into day and times
+                try:
+                    day_part, times_part = desc.split(":", 1)
+                except:
+                    continue
+
+                day = day_part.strip()
+                times_str = times_part.strip()
+            
+                if 'Closed' in times_str:
+                    operating_time[day] = 'Closed'
+                else:
+                    # Split the times string on the dash. This regex coers possible extra whitespaces
+                    times = re.split(r'\s*–\s*', times_str)
+                    if len(times) == 2:
+                        # Remove any extra whitespace, including unicode characgers
+                        open_time = re.sub(r'\s+', '', times[0])
+                        close_time = re.sub(r'\s+', '', times[1])
+                        operating_time[day] = {
+                            "open_time": open_time,
+                            "close_time": close_time
+                        }
+        return operating_time
         
     """
         Inserts new place details into the 'locations' table using data from the API.
@@ -207,21 +204,25 @@ class GetPlaceDetailsClass(FlaskClass):
            
             # Extract the location details
             location = place_data.get("location")
-            lat = location.get("lat") if location else None
-            lng = location.get("lng") if location else None
+            lat = location.get("latitude") if location else None
+            lng = location.get("longitude") if location else None
             latlong = f"({lng}, {lat})" if (lat is not None and lng is not None) else None
 
             types_field = place_data.get("types", [])
 
-            photos = json.dumps(place_data.get("photos", []))
+            all_photos = place_data.get("photos", [])
+            photos = json.dumps(all_photos[:3])
+
             websiteURI = place_data.get("websiteUri") or ""
+            
+            operating_time = json.dumps(self.get_operating_time(place_data)) 
 
             query = """
-                INSERT INTO locations (place_id, displayName, delivery, address, latlong, type, photos, websiteURI)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                RETURNING place_id, displayName, delivery, address, latlong, type, photos, websiteURI;
+                INSERT INTO locations (place_id, displayName, delivery, address, latlong, type, photos, websiteURI, operating_time)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING place_id, displayName, delivery, address, latlong, type, photos, websiteURI, operating_time;
             """
-            cursor.execute(query, (place_id, display_name, delivery, address, latlong, types_field, photos, websiteURI))
+            cursor.execute(query, (place_id, display_name, delivery, address, latlong, types_field, photos, websiteURI, operating_time))
             connection.commit()
             record = cursor.fetchone()
             return {
@@ -232,7 +233,8 @@ class GetPlaceDetailsClass(FlaskClass):
                 "latlong": record[4],
                 "type": record[5],
                 "photos": record[6],
-                "websiteURI": record[7]
+                "websiteURI": record[7],
+                "operating_time": record[8]
             }
         except Exception as e:
             print("Error in insert_place_details", e)
