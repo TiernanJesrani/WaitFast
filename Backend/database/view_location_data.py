@@ -1,6 +1,6 @@
 import psycopg2
 import pandas as pd
-from secret import get_secret
+from .secret import get_secret
 
 def view_locations():
     user, password = get_secret()
@@ -14,10 +14,9 @@ def view_locations():
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM locations;")
     rows = cursor.fetchall()
-    for row in rows:
-        print(row)
     cursor.close()
     connection.close()
+    return rows
 
 def export_locations_to_csv(csv_filename="locations.csv"):
     user, password = get_secret()
@@ -40,4 +39,4 @@ def export_locations_to_csv(csv_filename="locations.csv"):
     connection.close()  
 
 if __name__ == '__main__':
-    export_locations_to_csv()
+    view_locations()

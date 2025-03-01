@@ -15,23 +15,29 @@ class PlaceViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published var selectedCategory: String = "All"
     @Published var maxDistance: Double = 5.0
+
     
-    init() {
-        Task {
-            await fetchAttractions()
-//            await fetchDummyData()
-        }
-    }
-    
-    func fetchAttractions() async {
+    func fetchAttractions(lat: Double, lon: Double) async {
         isLoading = true
         errorMessage = nil
         
-        guard let url = URL(string: "http://127.0.0.1:5000/attractions/") else {
-            errorMessage = "Invalid URL"
-            isLoading = false
-            return
-        }
+        guard var urlComponents = URLComponents(string: "http://127.0.0.1:5000/attractions/") else {
+                errorMessage = "Invalid URL"
+                isLoading = false
+                return
+            }
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "lat", value: String(lat)),
+                URLQueryItem(name: "lon", value: String(lon))
+            ]
+            
+            // Ensure URL is valid after adding query parameters
+            guard let url = urlComponents.url else {
+                errorMessage = "Failed to build URL with parameters"
+                isLoading = false
+                return
+            }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
