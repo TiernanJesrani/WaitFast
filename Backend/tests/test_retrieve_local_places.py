@@ -3,7 +3,7 @@ import json
 import pytest
 import sys
 
-from Backend.flask.routes.models.getPlaceDetails import GetPlaceDetailsClass
+from Backend.app.routes.models.getPlaceDetails import GetPlaceDetailsClass
 from Backend.tests.helpers.dummy_database_functions import DummyCursor, DummyConnection 
 
 
