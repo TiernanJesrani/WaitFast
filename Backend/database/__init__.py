@@ -1,1 +1,1 @@
-from .view_data import view_locations
+from .view_location_data import view_locations

@@ -1,5 +1,5 @@
-from flaskClass import FlaskClass
-from getPlaceDetails import GetPlaceDetailsClass
+from .flaskClass import FlaskClass
+from .getPlaceDetails import GetPlaceDetailsClass
 from dotenv import load_dotenv
 import os
 import requests
@@ -15,7 +15,7 @@ class FindNearbyPlacesClass(FlaskClass):
         return
     
 
-    def get_data(self, query, filters, user_location=None):
+    def get_data(self, query, filters, user_location):
         nearby_places = self.getFilteredNearbyPlaces(query, filters, user_location)
         return nearby_places
         
@@ -213,7 +213,7 @@ class FindNearbyPlacesClass(FlaskClass):
             meets_criteria = True
 
             # Filter: If wait_time_max filter is provided, exclude any place that has a custom wait_time above it.
-            if "wait_time_max" in filters and data.get("wait_time_max") is not None:
+            if filters is not None and "wait_time_max" in filters and data.get("wait_time_max") is not None:
                 if data["wait_time_max"] > filters["wait_time_max"]:
                     meets_criteria = False
 
@@ -223,7 +223,7 @@ class FindNearbyPlacesClass(FlaskClass):
                 filtered_places.append(place)        
 
         # Step 5: If the avg_wait_time filter is provided, sort results by avg_wait_time in ascending order.
-        if "curr_wait_time" in filters:
+        if filters is not None and "curr_wait_time" in filters:
             filtered_places.sort(key=lambda x: x.get("curr_wait_time", float('inf')))
 
         return {"places": filtered_places}

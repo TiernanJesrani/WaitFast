@@ -3,7 +3,7 @@ import os
 import requests
 import sys
 import json
-from flaskClass import FlaskClass
+from .flaskClass import FlaskClass
 import re
 
 current_dir = os.path.dirname(__file__)
@@ -31,7 +31,7 @@ class GetPlaceDetailsClass(FlaskClass):
         return connection, connection.cursor()
     
     # Function to retrieve local place details for a list of place_ids
-    def retrieve_local_places(self, place_ids):
+    def retrieve_place_page(self, place_ids):
         # Build a dictionary mapping for places already in the DB
         local_places = {}
         if not place_ids:
@@ -60,7 +60,66 @@ class GetPlaceDetailsClass(FlaskClass):
             cursor.execute(query, (format_ids, ))
             results = cursor.fetchall()
 
-            # For each row from the result, populate the local_laces dictionary
+            # For each row from the result, populate the local_places dictionary
+            for row in results:
+                place_id = row[0]
+                local_places[place_id] = {
+                    "id": row[0],
+                    "displayName": row[1],
+                    "delivery": row[2],
+                    "address": row[3],
+                    "latlong": row[4],
+                    "type": row[5],
+                    "photos": row[6],
+                    "websiteURI": row[7],
+                    "operating_time": row[8], # Aggregated JSON array for all opening hours
+                    "wait_times": row[9] # Aggregated JSON array for all wait_times
+                }
+            return local_places
+
+        except Exception as e:
+            print("Error in retrieve_local_places:", e)
+            return local_places
+        finally:
+            cursor.close()
+            connection.close()
+
+    
+    # Function to retrieve local place details for a list of place_ids
+    def retrieve_local_places(self, place_ids):
+        # Build a dictionary mapping for places already in the DB
+        local_places = {}
+        if not place_ids:
+            return local_places
+        
+        
+        connection, cursor = self.get_db_connection()
+        try: 
+            format_ids = tuple(place_ids) # Ensure the list is converted to a tuple
+            query = f"""
+                SELECT 
+                    l.place_id, 
+                    l.displayName, 
+                    l.delivery,
+                    l.address, 
+                    l.latlong, 
+                    l.type, 
+                    l.photos, 
+                    l.websiteURI,
+                    l.operating_time,
+                    wt_td.live_wait_time
+                FROM locations l
+                LEFT JOIN wait_times_today wt_td 
+                ON wt_td.location_id = l.id
+                WHERE l.place_id IN %s
+                ORDER BY wt_td.day DESC, wt_td.hour DESC
+                LIMIT 1;             
+            """
+
+            cursor.execute(query, (format_ids, ))
+            results = cursor.fetchall()
+
+            # For each row from the result, populate the local_places dictionary
             for row in results:
                 place_id = row[0]
                 local_places[place_id] = {
@@ -220,6 +279,8 @@ class GetPlaceDetailsClass(FlaskClass):
             query = """
                 INSERT INTO locations (place_id, displayName, delivery, address, latlong, type, photos, websiteURI, operating_time)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (place_id)
+                DO UPDATE SET place_id = locations.place_id
                 RETURNING place_id, displayName, delivery, address, latlong, type, photos, websiteURI, operating_time;
             """
             cursor.execute(query, (place_id, display_name, delivery, address, latlong, types_field, photos, websiteURI, operating_time))
@@ -234,7 +295,8 @@ class GetPlaceDetailsClass(FlaskClass):
                 "type": record[5],
                 "photos": record[6],
                 "websiteURI": record[7],
-                "operating_time": record[8]
+                "operating_time": record[8],
+                "wait_times": 'Unknown'
             }
         except Exception as e:
             print("Error in insert_place_details", e)
@@ -265,6 +327,8 @@ class GetPlaceDetailsClass(FlaskClass):
             pid = place.get("id")
             # Use local details if already complete
             if pid in local_places and local_places[pid]:
+                #print(local_places[pid].keys())
+                print("test 0")
                 complete_places[pid] = local_places[pid]
             else:
                 # Otherwise, fetch details from the API
@@ -275,10 +339,13 @@ class GetPlaceDetailsClass(FlaskClass):
                     # Use the inserted record if insertion was successful
                     if inserted_record:
                         complete_places[pid] = inserted_record
+                        print("test 1")
                     else:
+                        print("test 2")
                         complete_places[pid] = api_details
         else:
             complete_places[pid] = place
+        #print("test: ", complete_places['ChIJt_YJNEVEOogRp3VYcxU9Da4'].keys())
         return complete_places
 
 
