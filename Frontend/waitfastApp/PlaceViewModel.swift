@@ -29,8 +29,8 @@ class PlaceViewModel: ObservableObject {
         
         urlComponents.queryItems = [
             URLQueryItem(name: "lat", value: String(lat)),
-                URLQueryItem(name: "lon", value: String(lon)),
-            URLQueryItem(name: "query", value: "eat")
+                URLQueryItem(name: "lon", value: String(lon))
+            //URLQueryItem(name: "query", value: "eat")
             ]
             
             // Ensure URL is valid after adding query parameters

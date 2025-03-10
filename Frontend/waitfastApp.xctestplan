@@ -1,0 +1,40 @@
+{
+  "configurations" : [
+    {
+      "id" : "45E3BCE7-9343-4162-8072-1CEC3002CA16",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "locationScenario" : {
+      "identifier" : "..\/..\/Location.gpx"
+    },
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:waitfastApp.xcodeproj",
+      "identifier" : "CBB140C52D5D33230066C7D2",
+      "name" : "waitfastApp"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:waitfastApp.xcodeproj",
+        "identifier" : "CBB140D62D5D33270066C7D2",
+        "name" : "waitfastAppTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:waitfastApp.xcodeproj",
+        "identifier" : "CBB140E02D5D33270066C7D2",
+        "name" : "waitfastAppUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

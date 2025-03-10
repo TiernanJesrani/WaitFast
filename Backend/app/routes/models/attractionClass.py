@@ -26,8 +26,6 @@ class AttractionClass(FlaskClass):
                 lat_and_long = row['latlong'].strip(')')
                 lat_and_long = lat_and_long.strip('(')
                 lat, long = lat_and_long.split(',')
-                print(lat)
-                print(long)
                 print(lat_and_long)
                 reg_info.append({"id": row['id'], "name": row['displayName'], "category": t, 
                                 "lat": lat, "long": long, "operatingTimes": row['operating_time'], "liveWaitTimes": row['wait_times']})
