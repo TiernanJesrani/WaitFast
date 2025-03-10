@@ -15,7 +15,7 @@ struct DetailView: View {
         VStack {
             Text(place.name).font(.largeTitle)
             Text("Category: \(place.category.capitalized)").font(.title3)
-            Text("Live Wait Time: \(place.liveWaitTime)").font(.headline).padding()
+            Text("Live Wait Time: \(place.liveWaitTimes)").font(.headline).padding()
             Button("Submit Wait Time") {
                 // Navigate to SubmitWaitView
             }
