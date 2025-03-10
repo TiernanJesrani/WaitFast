@@ -138,6 +138,9 @@ class FindNearbyPlacesClass(FlaskClass):
             query_exists = True
             api_url = api_url_query
             payload["pageSize"] = 5 # Set a default pageSize for a query api call
+            payload["types"] = ["restaurant"]
+        else:
+            payload["includedTypes"] = ["restaurant"]
 
 
         # Merge the filters into the payload
@@ -145,7 +148,10 @@ class FindNearbyPlacesClass(FlaskClass):
         if filters and isinstance(filters, dict):
             for key, value in filters.items():
                 if key == "type" and value is not None and value != "":
-                    payload["includedTypes"] = [value]
+                    if query_exists:
+                        payload["includedTypes"] = [value]
+                    else:
+                        payload["types"] = [value]
         
         # If a query doesn't exist then we have to do a nearby serach
         if not query_exists:

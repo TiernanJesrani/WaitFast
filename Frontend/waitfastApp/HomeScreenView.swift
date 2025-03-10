@@ -50,7 +50,7 @@ struct HomeScreenView: View {
                     var distanceInMeters: Double {
                             let placeLocation = CLLocation(latitude: place.coordinate.latitude, longitude: place.coordinate.longitude)
                             let userLocation = CLLocation(latitude: coordinates.lat, longitude: coordinates.lon)
-                            return placeLocation.distance(from: userLocation)
+                            return placeLocation.distance(from: userLocation) / 1609.34
                         }
                     
                     NavigationLink(destination: DetailView(place: place)) {
@@ -66,7 +66,7 @@ struct HomeScreenView: View {
                             }
                             Spacer()
                             VStack(alignment: .trailing) {
-                                Text("\(String(format: "%.1f", distanceInMeters)) m")
+                                Text("\(String(format: "%.1f", distanceInMeters)) miles")
                                     .foregroundColor(.white)
                                 Text("Wait: \(place.liveWaitTimes)")
                                     .bold()
