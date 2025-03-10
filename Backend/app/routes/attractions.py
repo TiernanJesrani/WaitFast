@@ -19,7 +19,7 @@ def company_info():
     print(lat)
     print(lon)
     user_location = {}
-    user_location['lattitude'] = lat
+    user_location['latitude'] = lat
     user_location['longitude'] = lon
     attraction_inst = AttractionClass(query, filters, user_location)
     nearby_places_data = attraction_inst.get_data()

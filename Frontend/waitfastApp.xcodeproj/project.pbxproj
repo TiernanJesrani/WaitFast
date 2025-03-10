@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		935992142D7F604E006C9FD1 /* Location.gpx in Resources */ = {isa = PBXBuildFile; fileRef = 935992132D7F604E006C9FD1 /* Location.gpx */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		CBB140D82D5D33270066C7D2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +28,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		935992122D7F5FDF006C9FD1 /* waitfastApp.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = waitfastApp.xctestplan; sourceTree = "<group>"; };
+		935992132D7F604E006C9FD1 /* Location.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Location.gpx; sourceTree = "<group>"; };
+		935992152D7F60CC006C9FD1 /* Location.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Location.gpx; sourceTree = "<group>"; };
 		CBB140C62D5D33230066C7D2 /* waitfastApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = waitfastApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CBB140D72D5D33270066C7D2 /* waitfastAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = waitfastAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CBB140E12D5D33270066C7D2 /* waitfastAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = waitfastAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,6 +82,9 @@
 		CBB140BD2D5D33230066C7D2 = {
 			isa = PBXGroup;
 			children = (
+				935992152D7F60CC006C9FD1 /* Location.gpx */,
+				935992122D7F5FDF006C9FD1 /* waitfastApp.xctestplan */,
+				935992132D7F604E006C9FD1 /* Location.gpx */,
 				CBB140C82D5D33230066C7D2 /* waitfastApp */,
 				CBB140DA2D5D33270066C7D2 /* waitfastAppTests */,
 				CBB140E42D5D33270066C7D2 /* waitfastAppUITests */,
@@ -212,6 +222,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				935992142D7F604E006C9FD1 /* Location.gpx in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -39,16 +39,18 @@ class FindNearbyPlacesClass(FlaskClass):
     def build_location_restriction(self, filters, user_location):
         
         # Convert distance from miles to meteres
-        if "distance_max" in filters and filters["distance_max"] is not None:
+        if filters is not None and "distance_max" in filters and filters["distance_max"] is not None:
             radius = filters["distance_max"] * 1609.34 
         else:
             radius = 3218.69 # Default is two miles 
 
+        print(user_location)
+        # If we don't have latitude or longitude return an empty dict
+        if user_location is None:
+            return {}
+        
         latitude = user_location["latitude"]
         longitude = user_location["longitude"]
-        # If we don't have latitude or longitude return an empty dict
-        if latitude is None or longitude is None:
-            return {}
             
         return {
             "circle": {
@@ -115,11 +117,11 @@ class FindNearbyPlacesClass(FlaskClass):
         } 
         # Make sure that both the search query and the filters aren't blank
         # TODO: Determine how to best handle an error case
-        if (not query or query.strip() == "") and (not filters or len(filters) == 0):
-            return {
-                "error": "InvalidInput",
-                "message": "Both query and filters cannot be blank. Please provide at least one."
-            }
+        # if (not query or query.strip() == "") and (not filters or len(filters) == 0):
+        #     return {
+        #         "error": "InvalidInput",
+        #         "message": "Both query and filters cannot be blank. Please provide at least one."
+        #     }
    
 
         # Start constructing the payload
@@ -184,7 +186,7 @@ class FindNearbyPlacesClass(FlaskClass):
         Returns:
             dict: A dictionary with key "places" containing the filtered (and possibly sorted) results.
     """
-    def getFilteredNearbyPlaces(self, query, filters, user_location=None):
+    def getFilteredNearbyPlaces(self, query, filters, user_location):
 
         # Step 1: Get nearby places from Google API
         # TODO: Determine how to use the nextPageToken for infinite scrolling
