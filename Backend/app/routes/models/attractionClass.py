@@ -23,10 +23,10 @@ class AttractionClass(FlaskClass):
                     if types == "bar":
                         t = "bar"
 
-                lat_and_long = row['latlong'].strip(')')
-                lat_and_long = lat_and_long.strip('(')
-                lat, long = lat_and_long.split(',')
-                print(lat_and_long)
+                long_and_lat = row['latlong'].strip(')')
+                long_and_lat = long_and_lat.strip('(')
+                long, lat = long_and_lat.split(',')
+                print(long_and_lat)
                 reg_info.append({"id": row['id'], "name": row['displayName'], "category": t, 
                                 "lat": lat, "long": long, "operatingTimes": row['operating_time'], "liveWaitTimes": row['wait_times']})
 
