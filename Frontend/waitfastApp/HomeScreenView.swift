@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import CoreLocation
 
 struct HomeScreenView: View {
     @StateObject var viewModel = PlaceViewModel()
@@ -46,6 +47,12 @@ struct HomeScreenView: View {
 
         
                 List(viewModel.filteredPlaces) { place in
+                    var distanceInMeters: Double {
+                            let placeLocation = CLLocation(latitude: place.coordinate.latitude, longitude: place.coordinate.longitude)
+                            let userLocation = CLLocation(latitude: coordinates.lat, longitude: coordinates.lon)
+                            return placeLocation.distance(from: userLocation)
+                        }
+                    
                     NavigationLink(destination: DetailView(place: place)) {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
@@ -59,9 +66,9 @@ struct HomeScreenView: View {
                             }
                             Spacer()
                             VStack(alignment: .trailing) {
-                                Text("\(String(format: "%.1f", place.distance)) km")
+                                Text("\(String(format: "%.1f", distanceInMeters)) m")
                                     .foregroundColor(.white)
-                                Text("Wait: \(place.liveWaitTime)")
+                                Text("Wait: \(place.liveWaitTimes)")
                                     .bold()
                                     .foregroundColor(.yellow)
                             }

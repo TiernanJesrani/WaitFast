@@ -29,7 +29,8 @@ class PlaceViewModel: ObservableObject {
         
         urlComponents.queryItems = [
             URLQueryItem(name: "lat", value: String(lat)),
-                URLQueryItem(name: "lon", value: String(lon))
+                URLQueryItem(name: "lon", value: String(lon)),
+            URLQueryItem(name: "query", value: "eat")
             ]
             
             // Ensure URL is valid after adding query parameters
@@ -69,8 +70,8 @@ class PlaceViewModel: ObservableObject {
         places.filter { place in
             let matchesName = searchText.isEmpty || place.name.lowercased().contains(searchText.lowercased())
             let matchesCategory = (selectedCategory == "All") || (place.category.lowercased() == selectedCategory.lowercased())
-            let matchesDistance = place.distance <= maxDistance
-            return matchesName && matchesCategory && matchesDistance
+            //let matchesDistance = place.distance <= maxDistance
+            return matchesName && matchesCategory //&& matchesDistance
         }
     }
 }
