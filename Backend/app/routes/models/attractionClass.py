@@ -1,5 +1,6 @@
 from .flaskClass import FlaskClass
 from .findNearbyPlacesClass import FindNearbyPlacesClass
+from .getPlaceDetails import GetPlaceDetailsClass
 from database import view_locations
 
 class AttractionClass(FlaskClass):
@@ -26,10 +27,32 @@ class AttractionClass(FlaskClass):
                 long_and_lat = row['latlong'].strip(')')
                 long_and_lat = long_and_lat.strip('(')
                 long, lat = long_and_lat.split(',')
-                print(long_and_lat)
+                # print(row["displayName"])
+                # print(row["wait_time_now"])
                 reg_info.append({"id": row['id'], "name": row['displayName'], "category": t, 
-                                "lat": lat, "long": long, "operatingTimes": row['operating_time'], "liveWaitTimes": row['wait_times']})
+                                "lat": lat, "long": long, "operatingTimes": row['operating_time'], 
+                                "liveWaitTimes": row['wait_times'], "sampleCount": row["sample_count"], 
+                                "waitTimeNow": str(row["wait_time_now"]) })
+        return reg_info
+                
+    def update_place_page(self, pid):
+        getPlaceInst = GetPlaceDetailsClass()
+        data = getPlaceInst.retrieve_local_places([pid])
+        reg_info = []
+        for row in data['places']:
+            if len(row.keys()) > 1:
+                t = "food"
+                for types in row['type']:
+                    if types == "bar":
+                        t = "bar"
 
+                long_and_lat = row['latlong'].strip(')')
+                long_and_lat = long_and_lat.strip('(')
+                long, lat = long_and_lat.split(',')
+                reg_info.append({"id": row['id'], "name": row['displayName'], "category": t, 
+                                "lat": lat, "long": long, "operatingTimes": row['operating_time'], 
+                                "liveWaitTimes": row['wait_times'], "sampleCount": row["sample_count"], 
+                                "waitTimeNow": str(row["wait_time_now"]) })
         return reg_info
 
 

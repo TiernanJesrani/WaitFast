@@ -15,7 +15,9 @@ struct Place: Identifiable, Decodable {
     let long: Double
     let coordinate: CLLocationCoordinate2D
     //let operatingTimes: [String: String]
-    let liveWaitTimes: String // this isn't correct
+    //let liveWaitTimes: String // this isn't correct
+    let sampleCount: Int
+    let waitTimeNow: String
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -23,17 +25,21 @@ struct Place: Identifiable, Decodable {
         case category
         case lat
         case long
-        case liveWaitTimes
+        //case liveWaitTimes
+        case sampleCount
+        case waitTimeNow
     }
     
-    //init(id: String, name: String, category: String, lat: String, long: String, liveWaitTimes: String) {
-     //   self.id = id
-      //  self.name = name
-    //    self.category = category
-   //     self.lat = Double(lat) ?? 0.00
-        //self.long = Double(long) ?? 0.00
-      //  self.liveWaitTimes = liveWaitTimes
-    //}
+    init(id: String, name: String, category: String, lat: Double, long: Double, sampleCount: Int, waitTimeNow: String) {
+            self.id = id
+            self.name = name
+            self.category = category
+            self.lat = lat
+            self.long = long
+            self.coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
+            self.sampleCount = sampleCount
+            self.waitTimeNow = waitTimeNow
+    }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -44,8 +50,10 @@ struct Place: Identifiable, Decodable {
         let longString = try container.decode(String.self, forKey: .long)
         lat = Double(latString) ?? 0.00
         long = Double(longString) ?? 0.00
-        liveWaitTimes = try container.decodeIfPresent(String.self, forKey: .liveWaitTimes) ?? "Unknown"
+        //liveWaitTimes = try container.decodeIfPresent(String.self, forKey: .liveWaitTimes) ?? "Unknown"
         coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
+        sampleCount = try container.decode(Int.self, forKey: .sampleCount)
+        waitTimeNow = try container.decode(String.self, forKey: .waitTimeNow)
     }
 }
                                                                             
