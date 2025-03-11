@@ -90,6 +90,7 @@ class GetPlaceDetailsClass(FlaskClass):
             """
             cursor.execute(query, (format_ids, ))
             results = cursor.fetchall()
+            print("Data already in database:", results)
 
             now = datetime.now()
             current_day = now.strftime("%A")

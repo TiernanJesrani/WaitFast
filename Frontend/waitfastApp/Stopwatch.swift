@@ -26,9 +26,13 @@ class Stopwatch: ObservableObject, Identifiable {
     }
     @Published private(set) var elapsedTime: TimeInterval = 0
     
+    
     let id = UUID()
     
+    
+    // Starts the timer, periodically updating 'elpasedTime' and 'formattedE'
     private func start() -> Void {
+        // Before starting a new timer, the code cancerls
         self.timer?.cancel()
         self.timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect().sink { _ in
             self.elapsedTime = self.getElapsedTime()

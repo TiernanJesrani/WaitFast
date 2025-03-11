@@ -65,9 +65,15 @@ struct HomeScreenView: View {
                             VStack(alignment: .trailing) {
                                 Text("\(String(format: "%.1f", distanceInMeters)) miles")
                                     .foregroundColor(.white)
-                                Text("Wait: \(place.waitTimeNow)")
-                                    .bold()
-                                    .foregroundColor(.yellow)
+                                if place.waitTimeNow == "Unknown" {
+                                    Text("Wait: Unknown")
+                                        .bold()
+                                        .foregroundColor(.yellow)
+                                } else {
+                                    Text("Wait: \(place.waitTimeNow) min")
+                                        .bold()
+                                        .foregroundColor(.yellow)
+                                }
                             }
                         }
                         .padding()

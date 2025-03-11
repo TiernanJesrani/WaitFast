@@ -138,7 +138,6 @@ class FindNearbyPlacesClass(FlaskClass):
             query_exists = True
             api_url = api_url_query
             payload["pageSize"] = 5 # Set a default pageSize for a query api call
-            payload["types"] = ["restaurant"]
         else:
             payload["includedTypes"] = ["restaurant"]
 
@@ -161,6 +160,7 @@ class FindNearbyPlacesClass(FlaskClass):
                 payload["locationRestriction"] = location_restriction
         
         # Make the request
+       
         try:
             response = requests.post(api_url, json=payload, headers=headers)
             response.raise_for_status() # Raise exception if HTTP status error occurs

@@ -39,4 +39,4 @@ def export_locations_to_csv(csv_filename="locations.csv"):
     connection.close()  
 
 if __name__ == '__main__':
-    view_locations()
+    export_locations_to_csv()
