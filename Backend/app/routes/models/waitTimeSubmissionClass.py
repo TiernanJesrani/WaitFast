@@ -1,6 +1,6 @@
-from flaskClass import FlaskClass
+from .flaskClass import FlaskClass
 from datetime import datetime, timedelta
-from Backend.database.secret import get_secret
+from database.secret import get_secret
 import psycopg2
 import json
 

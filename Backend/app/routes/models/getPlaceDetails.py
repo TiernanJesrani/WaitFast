@@ -4,6 +4,7 @@ import requests
 import sys
 import json
 from .flaskClass import FlaskClass
+from datetime import datetime, timedelta
 import re
 
 current_dir = os.path.dirname(__file__)
@@ -30,60 +31,34 @@ class GetPlaceDetailsClass(FlaskClass):
         )
         return connection, connection.cursor()
     
-    # Function to retrieve local place details for a list of place_ids
-    def retrieve_place_page(self, place_ids):
-        # Build a dictionary mapping for places already in the DB
-        local_places = {}
-        if not place_ids:
-            return local_places
-        
-        
+    def retrieve_new_time(self, place_id):
+        now = datetime.now()
+        current_day = now.strftime("%A")
+        current_hour = now.hour
         connection, cursor = self.get_db_connection()
         try: 
-            format_ids = tuple(place_ids) # Ensure the list is converted to a tuple
-            query = f"""
-                SELECT 
-                    l.place_id, 
-                    l.displayName, 
-                    l.delivery,
-                    l.address, 
-                    l.latlong, 
-                    l.type, 
-                    l.photos, 
-                    l.websiteURI,
-                    l.operating_time,
-                    COALESCE(wt.wait_times_data, '[]'::jsonb) AS wait_times  -- Select the wait_times JSONB field
-                FROM locations l
-                LEFT JOIN wait_times wt ON wt.location_id = l.id
-                WHERE l.place_id IN %s
+            ten_minutes_ago = now - timedelta(minutes=30)
+            query_avg = """
+                SELECT AVG(wait_time)::numeric, COUNT(*)
+                FROM wait_time_submissions
+                WHERE location_id = %s
+                AND day = %s
+                AND hour = %s
+                AND submitted_at >= %s;
             """
-            cursor.execute(query, (format_ids, ))
-            results = cursor.fetchall()
+            cursor.execute(query_avg, (place_id, current_day, current_hour, ten_minutes_ago))
+            avg_result = cursor.fetchone()
 
-            # For each row from the result, populate the local_places dictionary
-            for row in results:
-                place_id = row[0]
-                local_places[place_id] = {
-                    "id": row[0],
-                    "displayName": row[1],
-                    "delivery": row[2],
-                    "address": row[3],
-                    "latlong": row[4],
-                    "type": row[5],
-                    "photos": row[6],
-                    "websiteURI": row[7],
-                    "operating_time": row[8], # Aggregated JSON array for all opening hours
-                    "wait_times": row[9] # Aggregated JSON array for all wait_times
-                }
-            return local_places
+            avg_wait_time, sample_count = avg_result
+            avg_wait_time = int(round(float(avg_wait_time)))
 
+            return { "averageWaitTime": str(avg_wait_time), "sampleCount": sample_count }
         except Exception as e:
-            print("Error in retrieve_local_places:", e)
-            return local_places
+            print("Error in retrieve_new_time:", e)
+            return {}
         finally:
             cursor.close()
             connection.close()
-
     
     # Function to retrieve local place details for a list of place_ids
     def retrieve_local_places(self, place_ids):
@@ -107,21 +82,45 @@ class GetPlaceDetailsClass(FlaskClass):
                     l.photos, 
                     l.websiteURI,
                     l.operating_time,
-                    wt_td.live_wait_time
+                    wt.wait_times_data
                 FROM locations l
-                LEFT JOIN wait_times_today wt_td 
-                ON wt_td.location_id = l.id
-                WHERE l.place_id IN %s
-                ORDER BY wt_td.day DESC, wt_td.hour DESC
-                LIMIT 1;             
+                LEFT JOIN wait_times wt
+                ON wt.location_id = l.place_id
+                WHERE l.place_id IN %s        
             """
-
             cursor.execute(query, (format_ids, ))
             results = cursor.fetchall()
 
+            now = datetime.now()
+            current_day = now.strftime("%A")
+            current_hour = now.hour
             # For each row from the result, populate the local_places dictionary
             for row in results:
                 place_id = row[0]
+                print(row[0])
+                print(current_day)
+                print(current_hour)
+                ten_minutes_ago = now - timedelta(minutes=10)
+                query_avg = """
+                    SELECT AVG(wait_time)::numeric, COUNT(*)
+                    FROM wait_time_submissions
+                    WHERE location_id = %s
+                    AND day = %s
+                    AND hour = %s
+                    AND submitted_at >= %s;
+                """
+                cursor.execute(query_avg, (place_id, current_day, current_hour, ten_minutes_ago))
+                avg_result = cursor.fetchone()
+
+                print(avg_result)
+                avg_wait_time, sample_count = avg_result
+
+                if avg_wait_time is None:
+                    avg_wait_time = "Unknown"
+                    sample_count = 0
+                else:
+                    avg_wait_time = int(round(float(avg_wait_time)))
+
                 local_places[place_id] = {
                     "place_id": row[0],
                     "displayName": row[1],
@@ -132,7 +131,9 @@ class GetPlaceDetailsClass(FlaskClass):
                     "photos": row[6],
                     "websiteURI": row[7],
                     "operating_time": row[8], # Aggregated JSON array for all opening hours
-                    "wait_times": row[9] # Aggregated JSON array for all wait_times
+                    "wait_times": row[9], # Aggregated JSON array for all wait_times
+                    "wait_time_now": avg_wait_time,
+                    "sample_count": sample_count
                 }
             return local_places
 

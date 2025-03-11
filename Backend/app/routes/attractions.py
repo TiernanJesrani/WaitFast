@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 import json
 from .models.attractionClass import AttractionClass
-from .models.findNearbyPlacesClass import FindNearbyPlacesClass
 from flask import Blueprint
 
 bp = Blueprint('attractions', __name__)
@@ -16,8 +15,7 @@ def company_info():
 
     if lat is None or lon is None:
         return jsonify({"error": "Missing lat or lon parameters"}), 400
-    print(lat)
-    print(lon)
+    
     user_location = {}
     user_location['latitude'] = lat
     user_location['longitude'] = lon

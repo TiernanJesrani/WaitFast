@@ -12,12 +12,10 @@ import CoreLocation
 
 struct HomeScreenView: View {
     @StateObject var viewModel = PlaceViewModel()
-    
     @StateObject var deviceLocationService = DeviceLocationService.shared
-
     @State var tokens: Set<AnyCancellable> = []
     @State var coordinates: (lat: Double, lon: Double) = (0, 0)
-    
+
     var body: some View {
         NavigationView {
             VStack {
@@ -45,21 +43,20 @@ struct HomeScreenView: View {
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(.horizontal)
 
-        
-                List(viewModel.filteredPlaces) { place in
+                List(viewModel.filteredPlaces.indices, id: \.self) { index in
+                    let place = viewModel.filteredPlaces[index]
                     var distanceInMeters: Double {
-                            let placeLocation = CLLocation(latitude: place.coordinate.latitude, longitude: place.coordinate.longitude)
-                            let userLocation = CLLocation(latitude: coordinates.lat, longitude: coordinates.lon)
-                            return placeLocation.distance(from: userLocation) / 1609.34
-                        }
-                    
-                    NavigationLink(destination: DetailView(place: place)) {
+                        let placeLocation = CLLocation(latitude: place.coordinate.latitude, longitude: place.coordinate.longitude)
+                        let userLocation = CLLocation(latitude: coordinates.lat, longitude: coordinates.lon)
+                        return placeLocation.distance(from: userLocation) / 1609.34
+                    }
+
+                    NavigationLink(destination: DetailView(place: $viewModel.places[index])) {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(place.name)
                                     .font(.headline)
                                     .foregroundColor(.white)
-                                
                                 Text(place.category.capitalized)
                                     .font(.subheadline)
                                     .foregroundColor(place.category == "food" ? .cyan : .blue)
@@ -68,7 +65,7 @@ struct HomeScreenView: View {
                             VStack(alignment: .trailing) {
                                 Text("\(String(format: "%.1f", distanceInMeters)) miles")
                                     .foregroundColor(.white)
-                                Text("Wait: \(place.liveWaitTimes)")
+                                Text("Wait: \(place.waitTimeNow)")
                                     .bold()
                                     .foregroundColor(.yellow)
                             }
@@ -106,6 +103,7 @@ struct HomeScreenView: View {
             }
         }
     }
+
     func observeCoordinateUpdates() {
         deviceLocationService.coordinatesPublisher
             .receive(on: DispatchQueue.main)
