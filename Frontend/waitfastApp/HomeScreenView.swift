@@ -18,92 +18,101 @@ struct HomeScreenView: View {
 
     var body: some View {
         NavigationView {
-            VStack {
-                // App Logo at the Top
-                Image("waitfast_logo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 180, height: 100)
-                    .padding(.top, 20)
+            ZStack {
+                //  bakcground
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.6), Color.black.opacity(0.8)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .edgesIgnoringSafeArea(.all)
 
-                // Search Bar
-                TextField("Search by name...", text: $viewModel.searchText)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(10)
-                    .shadow(color: .gray.opacity(0.2), radius: 5, x: 0, y: 2)
-                    .padding([.horizontal, .top])
-
-                // Category Picker
-                Picker("Category", selection: $viewModel.selectedCategory) {
-                    Text("All").tag("All")
-                    Text("Food").tag("food")
-                    Text("Bar").tag("bar")
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding(.horizontal)
-
-                List(viewModel.filteredPlaces.indices, id: \.self) { index in
-                    let place = viewModel.filteredPlaces[index]
-                    var distanceInMeters: Double {
-                        let placeLocation = CLLocation(latitude: place.coordinate.latitude, longitude: place.coordinate.longitude)
-                        let userLocation = CLLocation(latitude: coordinates.lat, longitude: coordinates.lon)
-                        return placeLocation.distance(from: userLocation) / 1609.34
+                VStack(spacing: 16) {
+                    
+                    // Search Bar
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.gray)
+                        TextField("Search for a place...", text: $viewModel.searchText)
+                            .padding(8)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(10)
                     }
+                    .padding(.horizontal)
+                    .background(Color.white.opacity(0.2))
+                    .cornerRadius(12)
+                    .shadow(color: .gray.opacity(0.3), radius: 4, x: 0, y: 2)
 
-                    NavigationLink(destination: DetailView(place: $viewModel.places[index])) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(place.name)
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                Text(place.category.capitalized)
-                                    .font(.subheadline)
-                                    .foregroundColor(place.category == "food" ? .cyan : .blue)
-                            }
-                            Spacer()
-                            VStack(alignment: .trailing) {
-                                Text("\(String(format: "%.1f", distanceInMeters)) miles")
-                                    .foregroundColor(.white)
-                                if place.waitTimeNow == "Unknown" {
-                                    Text("Wait: Unknown")
-                                        .bold()
-                                        .foregroundColor(.yellow)
-                                } else {
-                                    Text("Wait: \(place.waitTimeNow) min")
-                                        .bold()
-                                        .foregroundColor(.yellow)
+                    // Category
+                    Picker("Category", selection: $viewModel.selectedCategory) {
+                        Text("All").tag("All")
+                        Text("Food").tag("food")
+                        Text("Bar").tag("bar")
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding(.horizontal)
+                    .background(Color.white.opacity(0.2))
+                    .cornerRadius(12)
+
+                    // Places list inf scroll
+                    ScrollView {
+                        VStack(spacing: 12) {
+                            ForEach(viewModel.filteredPlaces.indices, id: \.self) { index in
+                                let place = viewModel.filteredPlaces[index]
+                                var distanceInMiles: Double {
+                                    let placeLocation = CLLocation(latitude: place.coordinate.latitude, longitude: place.coordinate.longitude)
+                                    let userLocation = CLLocation(latitude: coordinates.lat, longitude: coordinates.lon)
+                                    return placeLocation.distance(from: userLocation) / 1609.34
                                 }
+
+                                NavigationLink(destination: DetailView(place: $viewModel.places[index])) {
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(place.name)
+                                                .font(.headline)
+                                                .foregroundColor(.white)
+                                            Text(place.category.capitalized)
+                                                .font(.subheadline)
+                                                .foregroundColor(.yellow)
+                                        }
+                                        Spacer()
+                                        VStack(alignment: .trailing) {
+                                            Text("\(String(format: "%.1f", distanceInMiles)) miles")
+                                                .foregroundColor(.white.opacity(0.8))
+                                            Text("Wait: \(place.waitTimeNow == "Unknown" ? "Unknown" : "\(place.waitTimeNow) min")")
+                                                .bold()
+                                                .foregroundColor(place.waitTimeNow == "Unknown" ? .yellow : .green)
+                                        }
+                                    }
+                                    .padding()
+                                    .background(RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.white.opacity(0.2))
+                                        .shadow(radius: 2))
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
                         }
-                        .padding()
-                        .background(LinearGradient(
-                            gradient: Gradient(colors: [Color.blue.opacity(0.9), Color.black.opacity(0.8)]),
-                            startPoint: .leading,
-                            endPoint: .trailing))
-                        .cornerRadius(10)
-                        .shadow(color: .gray.opacity(0.3), radius: 4, x: 0, y: 2)
+                        .padding(.horizontal)
                     }
-                    .listRowBackground(Color.clear)
                 }
-                .listStyle(PlainListStyle())
+                .padding(.top, 20)
             }
             .onAppear {
+                print("HomeScreenView appeared, starting location updates...")
                 observeCoordinateUpdates()
                 observeDeniedLocationAccess()
                 deviceLocationService.requestLocationUpdates()
             }
-            .background(Color(.systemGray6).edgesIgnoringSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     HStack {
-                        Image(systemName: "clock") // Small clock icon for styling
-                            .foregroundColor(.blue)
+                        Image(systemName: "clock.fill")
+                            .foregroundColor(.white)
                         Text("WaitFast")
                             .font(.title2)
                             .bold()
-                            .foregroundColor(.blue)
+                            .foregroundColor(.white)
                     }
                 }
             }
@@ -116,12 +125,11 @@ struct HomeScreenView: View {
             .sink { completion in
                 print("Handle \(completion) for error and finished subscription.")
             } receiveValue: { coordinates in
-                print(coordinates)
+                print("Received coordinates: \(coordinates.latitude), \(coordinates.longitude)")
                 self.coordinates = (coordinates.latitude, coordinates.longitude)
                 Task {
                     await viewModel.fetchAttractions(lat: self.coordinates.lat, lon: self.coordinates.lon)
                 }
-                print(self.coordinates)
             }
             .store(in: &tokens)
     }
