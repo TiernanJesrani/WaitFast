@@ -105,6 +105,29 @@ class PlaygroundClass(FlaskClass):
         except Exception as e:
             print("Error in get_place_details:", e)
             return None
+    
+    def get_photos(self, photo_name, maxHeightPx, maxWidthPx, skipHttpRedirect=True):
+        base_url = "https://places.googleapis.com/v1"
+
+        url = f"{base_url}/{photo_name}/media"   
+
+        api_key = os.getenv("GOOGLE_PLACES_API_KEY")
+
+        params = {
+            "key": api_key,
+            "maxHeightPx": maxHeightPx,
+            "maxWidthPx": maxWidthPx,
+            "skipHttpRedirect": skipHttpRedirect
+        }
+
+        try:
+            response = requests.get(url, params=params)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            print("Error getting photos")
+            return None
+
 
     """
     Dummy function to demonstrate how you can search for a restaurant
@@ -127,6 +150,7 @@ if __name__ == "__main__":
 
     find_nearby_places = FindNearbyPlacesClass()
     wait_time_obj = WaitTimeSubmissionClass()
+    play = PlaygroundClass()
 
     restuarants_in_ann_arbor = "Restaurants in Ann Arbor"
     no_query = ""
@@ -147,8 +171,7 @@ if __name__ == "__main__":
         "longitude": -89.36
     }
 
-    result = find_nearby_places.getFilteredNearbyPlaces(restuarants_in_ann_arbor, no_filters, center_ann_arbor)
-    print(result)
+    result = play.get_photos()
 
 
     
