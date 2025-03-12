@@ -19,6 +19,9 @@ struct Place: Identifiable, Decodable {
     let sampleCount: Int
     let waitTimeNow: String
     
+    // ADDED IMAGE
+    let imageURL: String?
+    
     enum CodingKeys: String, CodingKey {
         case id
         case name
@@ -28,9 +31,11 @@ struct Place: Identifiable, Decodable {
         //case liveWaitTimes
         case sampleCount
         case waitTimeNow
+        // added image URL
+        case imageURL
     }
     
-    init(id: String, name: String, category: String, lat: Double, long: Double, sampleCount: Int, waitTimeNow: String) {
+    init(id: String, name: String, category: String, lat: Double, long: Double, sampleCount: Int, waitTimeNow: String, imageURL: String? = nil) {
             self.id = id
             self.name = name
             self.category = category
@@ -39,6 +44,7 @@ struct Place: Identifiable, Decodable {
             self.coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
             self.sampleCount = sampleCount
             self.waitTimeNow = waitTimeNow
+            self.imageURL = imageURL
     }
     
     init(from decoder: Decoder) throws {
@@ -54,6 +60,7 @@ struct Place: Identifiable, Decodable {
         coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
         sampleCount = try container.decode(Int.self, forKey: .sampleCount)
         waitTimeNow = try container.decode(String.self, forKey: .waitTimeNow)
+        imageURL = try container.decodeIfPresent(String.self, forKey: .imageURL)
     }
 }
                                                                             
