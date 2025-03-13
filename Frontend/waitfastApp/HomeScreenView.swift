@@ -65,31 +65,31 @@ struct HomeScreenView: View {
                                     return placeLocation.distance(from: userLocation) / 1609.34
                                 }
 
-                                NavigationLink(destination: DetailView(place: $viewModel.places[index])) {
-                                    HStack {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(place.name)
-                                                .font(.headline)
-                                                .foregroundColor(.white)
-                                            Text(place.category.capitalized)
-                                                .font(.subheadline)
-                                                .foregroundColor(.yellow)
+                                NavigationLink(destination: DetailView(place: Binding.constant(place))) {
+                                        HStack {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text(place.name)
+                                                    .font(.headline)
+                                                    .foregroundColor(.white)
+                                                Text(place.category.capitalized)
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.yellow)
+                                            }
+                                            Spacer()
+                                            VStack(alignment: .trailing) {
+                                                Text("\(String(format: "%.1f", distanceInMiles)) miles")
+                                                    .foregroundColor(.white.opacity(0.8))
+                                                Text("Wait: \(place.waitTimeNow == "Unknown" ? "Unknown" : "\(place.waitTimeNow) min")")
+                                                    .bold()
+                                                    .foregroundColor(place.waitTimeNow == "Unknown" ? .yellow : .green)
+                                            }
                                         }
-                                        Spacer()
-                                        VStack(alignment: .trailing) {
-                                            Text("\(String(format: "%.1f", distanceInMiles)) miles")
-                                                .foregroundColor(.white.opacity(0.8))
-                                            Text("Wait: \(place.waitTimeNow == "Unknown" ? "Unknown" : "\(place.waitTimeNow) min")")
-                                                .bold()
-                                                .foregroundColor(place.waitTimeNow == "Unknown" ? .yellow : .green)
-                                        }
+                                        .padding()
+                                        .background(RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color.white.opacity(0.2))
+                                            .shadow(radius: 2))
                                     }
-                                    .padding()
-                                    .background(RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.white.opacity(0.2))
-                                        .shadow(radius: 2))
-                                }
-                                .buttonStyle(PlainButtonStyle())
+                                    .buttonStyle(PlainButtonStyle())
                             }
                         }
                         .padding(.horizontal)

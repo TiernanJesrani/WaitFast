@@ -59,7 +59,8 @@ struct SubmitWaitView: View {
                             lat: place.lat,
                             long: place.long,
                             sampleCount: response.sampleCount,
-                            waitTimeNow: response.averageWaitTime
+                            waitTimeNow: response.averageWaitTime,
+                            dailyWaitTimes: place.dailyWaitTimes
                         )
                         
                         
