@@ -77,7 +77,7 @@ struct DetailView: View {
                             .font(.title3)
                             .foregroundColor(.yellow)
                         
-                        Text("Current Wait: \(place.waitTimeNow == "Unknown" ? "Unknown" : "\(place.waitTimeNow) min")")
+                        Text("Current Wait: \(place.waitTimeNow == "Unknown" ? "\(place.getWaitByHour()) min" : "\(place.waitTimeNow) min")")
                             .font(.headline)
                             .foregroundColor(.green)
                     }

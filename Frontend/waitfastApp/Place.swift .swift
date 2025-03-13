@@ -69,6 +69,16 @@ struct Place: Identifiable, Decodable {
         dailyWaitTimes = try container.decode([String: Int].self, forKey: .dailyWaitTimes)
         dailyWaits = dailyWaitTimes.map { Waits(time: $0.key, min_delay: $0.value) }
     }
+    
+    func getWaitByHour() -> Int {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "hh:00a"
+        formatter.amSymbol = "AM"
+        formatter.pmSymbol = "PM"
+        let currentHour = formatter.string(from: Date())
+        print(currentHour)
+        return self.dailyWaitTimes[currentHour] ?? 0
+    }
 }
 
 struct Waits: Identifiable {
