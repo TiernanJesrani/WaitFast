@@ -20,6 +20,7 @@ class AttractionClass(FlaskClass):
         reg_info = []
         now = datetime.now()
         current_day = now.strftime("%A")
+        current_hour = now.hour
         for row in nearby_places_data['places']:
             if len(row.keys()) > 1:
                 t = "food"
@@ -30,7 +31,7 @@ class AttractionClass(FlaskClass):
                 long_and_lat = row['latlong'].strip(')')
                 long_and_lat = long_and_lat.strip('(')
                 long, lat = long_and_lat.split(',')
-
+                print(current_hour)
                 if row['operating_time'] and row['operating_time'][current_day] != "Closed":
                     operating_time = row['operating_time'][current_day]
                     print()
@@ -43,34 +44,35 @@ class AttractionClass(FlaskClass):
                         close_time += 'PM'
                     left = datetime.strptime(open_time, '%I:%M%p').hour
                     right = datetime.strptime(close_time, '%I:%M%p').hour
-                    wait_times = row['wait_times']
-                    if wait_times is None:
-                        wait_times = {
-                            '0': 3,  '1': 2,  '2': 2,  '3': 2,  '4': 5,  '5': 6,  '6': 9,  '7': 15,
-                            '8': 18, '9': 20, '10': 24, '11': 25, '12': 19, '13': 15, '14': 18,
-                            '15': 21, '16': 17, '17': 28, '18': 30, '19': 26, '20': 22, '21': 27,
-                            '22': 16, '23': 10
-                        }
-                        wait_times = {k: v for k, v in wait_times.items() if left <= int(k) < right}
-                    else:
-                        wait_times = wait_times[current_day]
-                    
-                    new_dict = {}
-                    for hour_str, wait_time in wait_times.items():
-                        time_obj = datetime.strptime(f"{hour_str}:00", "%H:%M")
-                        time_str = time_obj.strftime("%I:%M%p")
-                        new_dict[time_str] = wait_time
-    
-                    print(left)
-                    print(right)
-                    print(wait_times)
-                    print(row["displayName"])
-                    
-                    reg_info.append({"id": row['id'], "name": row['displayName'], "category": t, 
-                                    "lat": lat, "long": long, "operatingTimes": row['operating_time'], 
-                                    "dailyWaitTimes": new_dict, "sampleCount": row["sample_count"], 
-                                    "waitTimeNow": str(row["wait_time_now"]) })
-                    print()
+                    if current_hour >= left and current_hour < right:
+                        wait_times = row['wait_times']
+                        if wait_times is None:
+                            wait_times = {
+                                '0': 3,  '1': 2,  '2': 2,  '3': 2,  '4': 5,  '5': 6,  '6': 9,  '7': 15,
+                                '8': 18, '9': 20, '10': 24, '11': 25, '12': 19, '13': 15, '14': 18,
+                                '15': 21, '16': 17, '17': 28, '18': 30, '19': 26, '20': 22, '21': 27,
+                                '22': 16, '23': 10
+                            }
+                            wait_times = {k: v for k, v in wait_times.items() if left <= int(k) < right}
+                        else:
+                            wait_times = wait_times[current_day]
+                        
+                        new_dict = {}
+                        for hour_str, wait_time in wait_times.items():
+                            time_obj = datetime.strptime(f"{hour_str}:00", "%H:%M")
+                            time_str = time_obj.strftime("%I:%M%p")
+                            new_dict[time_str] = wait_time
+        
+                        print(left)
+                        print(right)
+                        print(wait_times)
+                        print(row["displayName"])
+                        
+                        reg_info.append({"id": row['id'], "name": row['displayName'], "category": t, 
+                                        "lat": lat, "long": long, "operatingTimes": row['operating_time'], 
+                                        "dailyWaitTimes": new_dict, "sampleCount": row["sample_count"], 
+                                        "waitTimeNow": str(row["wait_time_now"]) })
+                        print()
         return reg_info
                 
     def update_place_page(self, pid):
