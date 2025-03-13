@@ -44,7 +44,6 @@ class FindNearbyPlacesClass(FlaskClass):
         else:
             radius = 3218.69 # Default is two miles 
 
-        print(user_location)
         # If we don't have latitude or longitude return an empty dict
         if user_location is None:
             return {}

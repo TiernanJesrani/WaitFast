@@ -7,7 +7,6 @@ bp = Blueprint('attractions', __name__)
 
 @bp.route("/attractions/")
 def company_info():
-    print("test")
     lat = request.args.get('lat')
     lon = request.args.get('lon')
     query = request.args.get('query')

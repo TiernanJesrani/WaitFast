@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import Charts
 
 struct DetailView: View {
     @Binding var place: Place
@@ -14,6 +15,7 @@ struct DetailView: View {
     @State private var showSubmitSheet = false
     @State private var placeImageURL: String? = nil
     @State private var showImageError = false
+
     
     var body: some View {
         ZStack {
@@ -51,7 +53,20 @@ struct DetailView: View {
                             .opacity(0.5)
                             .cornerRadius(12)
                     }
-
+                    
+                    Chart {
+                        ForEach(place.dailyWaits) { stat in
+                            BarMark(
+                                x: .value("Time", stat.time),
+                                y: .value("Wait", stat.min_delay)
+                            )
+                            .foregroundStyle(.blue) // Customize color if needed
+                            .clipShape(RoundedRectangle(cornerRadius: 16)) // Optional rounded corners
+                        }
+                    }
+                    .padding()
+                    .frame(height: 300)
+                    
                     VStack(spacing: 10) {
                         Text(place.name)
                             .font(.largeTitle)

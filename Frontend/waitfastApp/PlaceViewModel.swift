@@ -11,7 +11,7 @@ class PlaceViewModel: ObservableObject {
     @Published var places: [Place] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
-    
+    @Published var selectedPlace: Place?
     @Published var searchText: String = ""
     @Published var selectedCategory: String = "All"
     @Published var maxDistance: Double = 5.0
