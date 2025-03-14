@@ -18,9 +18,7 @@ struct Place: Identifiable, Decodable {
     let sampleCount: Int
     let waitTimeNow: String
     let dailyWaits: [Waits]
-    
-    // ADDED IMAGE
-    let imageURL: String?
+    let imageURL: String
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -35,7 +33,7 @@ struct Place: Identifiable, Decodable {
         case imageURL
     }
     
-    init(id: String, name: String, category: String, lat: Double, long: Double, sampleCount: Int, waitTimeNow: String, dailyWaitTimes: [String: Int], imageURL: String? = nil) {
+    init(id: String, name: String, category: String, lat: Double, long: Double, sampleCount: Int, waitTimeNow: String, dailyWaitTimes: [String: Int], imageURL: String) {
         self.id = id
         self.name = name
         self.category = category
@@ -65,7 +63,7 @@ struct Place: Identifiable, Decodable {
         
         sampleCount = try container.decode(Int.self, forKey: .sampleCount)
         waitTimeNow = try container.decode(String.self, forKey: .waitTimeNow)
-        imageURL = try container.decodeIfPresent(String.self, forKey: .imageURL)
+        imageURL = try container.decode(String.self, forKey: .imageURL)
         dailyWaitTimes = try container.decode([String: Int].self, forKey: .dailyWaitTimes)
         dailyWaits = dailyWaitTimes.map { Waits(time: $0.key, min_delay: $0.value) }
     }
@@ -76,7 +74,6 @@ struct Place: Identifiable, Decodable {
         formatter.amSymbol = "AM"
         formatter.pmSymbol = "PM"
         let currentHour = formatter.string(from: Date())
-        print(currentHour)
         return self.dailyWaitTimes[currentHour] ?? 0
     }
 }

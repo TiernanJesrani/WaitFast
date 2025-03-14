@@ -60,7 +60,8 @@ struct SubmitWaitView: View {
                             long: place.long,
                             sampleCount: response.sampleCount,
                             waitTimeNow: response.averageWaitTime,
-                            dailyWaitTimes: place.dailyWaitTimes
+                            dailyWaitTimes: place.dailyWaitTimes,
+                            imageURL: place.imageURL
                         )
                         
                         
