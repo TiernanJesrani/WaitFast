@@ -95,8 +95,26 @@ struct DetailView: View {
 
                     VStack(spacing: 12) {
                         HStack {
-                            Button(stopwatch.isRunning ? "Stop" : "Start") {
-                                stopwatch.isRunning.toggle()
+                            Button(stopwatch.isRunning ? "Submit" : "Start") {
+                                Task {
+                                        if stopwatch.isRunning {
+                                            let result = await stopwatch.postTime(pid: place.id)
+                                            place = Place(
+                                                id: place.id,
+                                                name: place.name,
+                                                category: place.category,
+                                                lat: place.lat,
+                                                long: place.long,
+                                                sampleCount: result.sampleCount,
+                                                waitTimeNow: result.averageWaitTime,
+                                                dailyWaitTimes: place.dailyWaitTimes,
+                                                imageURL: place.imageURL
+                                            )
+        
+                                            print(place.waitTimeNow)
+                                        }
+                                        stopwatch.isRunning.toggle()
+                                    }
                             }
                             .frame(maxWidth: .infinity)
                             .buttonStyle(.borderedProminent)

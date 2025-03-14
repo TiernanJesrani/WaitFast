@@ -62,17 +62,19 @@ class PlaceViewModel: ObservableObject {
             errorMessage = "Failed to fetch data: \(error.localizedDescription)"
             print("Error while fetching data", error)
         }
+        filterPlaces()
         
         isLoading = false
     }
     
-    var filteredPlaces: [Place] {
-        places.filter { place in
-            let matchesName = searchText.isEmpty || place.name.lowercased().contains(searchText.lowercased())
-            let matchesCategory = (selectedCategory == "All") || (place.category.lowercased() == selectedCategory.lowercased())
-            //let matchesDistance = place.distance <= maxDistance
-            return matchesName && matchesCategory //&& matchesDistance
-        }
+    func filterPlaces() {
+            filteredPlaces = places.filter { place in
+                let matchesName = searchText.isEmpty || place.name.lowercased().contains(searchText.lowercased())
+                let matchesCategory = (selectedCategory == "All") || (place.category.lowercased() == selectedCategory.lowercased())
+                return matchesName && matchesCategory
+            }
     }
+    
+    @Published var filteredPlaces: [Place] = []
 }
 
