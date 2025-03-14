@@ -22,6 +22,11 @@ class AttractionClass(FlaskClass):
         current_day = now.strftime("%A")
         current_hour = now.hour
         for row in nearby_places_data['places']:
+            photoURI = "NA"
+            if 'photos' in row.keys():
+                photoURI = row['photos'][0]['photoUri']
+
+            print(photoURI)
             if len(row.keys()) > 1:
                 t = "food"
                 for types in row['type']:
@@ -31,11 +36,11 @@ class AttractionClass(FlaskClass):
                 long_and_lat = row['latlong'].strip(')')
                 long_and_lat = long_and_lat.strip('(')
                 long, lat = long_and_lat.split(',')
-                print(current_hour)
+                # print(current_hour)
                 if row['operating_time'] and row['operating_time'][current_day] != "Closed":
                     operating_time = row['operating_time'][current_day]
-                    print()
-                    print(operating_time)
+                    # print()
+                    # print(operating_time)
                     open_time = operating_time['open_time']
                     close_time = operating_time['close_time']
                     if 'AM' not in open_time and 'PM' not in open_time:
@@ -63,15 +68,15 @@ class AttractionClass(FlaskClass):
                             time_str = time_obj.strftime("%I:%M%p")
                             new_dict[time_str] = wait_time
         
-                        print(left)
-                        print(right)
-                        print(wait_times)
-                        print(row["displayName"])
+                        # print(left)
+                        # print(right)
+                        # print(wait_times)
+                        # print(row["displayName"])
                         
                         reg_info.append({"id": row['id'], "name": row['displayName'], "category": t, 
                                         "lat": lat, "long": long, "operatingTimes": row['operating_time'], 
                                         "dailyWaitTimes": new_dict, "sampleCount": row["sample_count"], 
-                                        "waitTimeNow": str(row["wait_time_now"]) })
+                                        "waitTimeNow": str(row["wait_time_now"]), "imageURL": photoURI })
                         print()
         return reg_info
                 

@@ -31,7 +31,7 @@ struct DetailView: View {
                 VStack(spacing: 20) {
                     
                     // Place Image - Using the imageURL from your model
-                    if let imageURL = place.imageURL, let url = URL(string: imageURL) {
+                    if place.imageURL != "NA", let url = URL(string: place.imageURL) {
                         AsyncImage(url: url) { phase in
                             switch phase {
                             case .success(let image):
@@ -42,7 +42,7 @@ struct DetailView: View {
                                     .clipped()
                                     .cornerRadius(12)
                                     .shadow(radius: 4)
-                            case .failure(let error):
+                            case .failure:
                                 VStack {
                                     Image(systemName: "photo.fill")
                                         .resizable()
@@ -54,9 +54,6 @@ struct DetailView: View {
                                         .foregroundColor(.gray)
                                 }
                                 .frame(height: 200)
-                                .onAppear {
-                                    print("Image loading error: \(error.localizedDescription)")
-                                }
                             case .empty:
                                 ProgressView()
                                     .frame(height: 200)
@@ -65,7 +62,7 @@ struct DetailView: View {
                             }
                         }
                     } else {
-                        // Placeholder if no image URL
+                        // Placeholder if no valid image URL
                         Image(systemName: "photo")
                             .resizable()
                             .scaledToFit()
@@ -74,6 +71,7 @@ struct DetailView: View {
                             .opacity(0.5)
                             .cornerRadius(12)
                     }
+
                     
                     Chart {
                         ForEach(place.dailyWaits) { stat in
@@ -145,54 +143,6 @@ struct DetailView: View {
         }
         .navigationTitle(place.name)
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            fetchPlaceImage()
-        }
-    }
-
-    private func fetchPlaceImage() {
-        // If we already have the image URL in the Place model, use it
-        if let imageURL = place.imageURL {
-            self.placeImageURL = imageURL
-            print("Using image URL from model: \(imageURL)")
-            return
-        }
-        
-        // Construct the URL to your backend to fetch the image
-        let baseURL = "http://127.0.0.1:5000" // Use your actual backend base URL
-        let imageEndpoint = "/place/\(place.id)/image" // Adjust this endpoint to match your backend
-        
-        guard let url = URL(string: baseURL + imageEndpoint) else {
-            print("Invalid image URL")
-            return
-        }
-        
-        print("Fetching image for Place ID: \(place.id) from backend")
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else {
-                print("Error fetching image: \(error?.localizedDescription ?? "Unknown error")")
-                return
-            }
-            
-            do {
-                if let jsonResponse = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                   let imageURL = jsonResponse["imageURL"] as? String {
-                    
-                    DispatchQueue.main.async {
-                        self.placeImageURL = imageURL
-                        print("Successfully fetched image URL from backend: \(imageURL)")
-                    }
-                } else {
-                    print("No image URL found in response")
-                    DispatchQueue.main.async {
-                        self.showImageError = true
-                    }
-                }
-            } catch {
-                print("Error parsing image response: \(error.localizedDescription)")
-            }
-        }.resume()
     }
     /// Formats elapsed time in hh:mm:ss
     private func elapsedTimeStr(timeInterval: TimeInterval) -> String {
