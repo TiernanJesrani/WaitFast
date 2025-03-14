@@ -53,44 +53,47 @@ struct HomeScreenView: View {
                     .padding(.horizontal)
                     .background(Color.white.opacity(0.2))
                     .cornerRadius(12)
+                    .onChange(of: viewModel.selectedCategory) { _ in
+                        viewModel.filterPlaces()
+                    }
 
                     // Places list inf scroll
                     ScrollView {
                         VStack(spacing: 12) {
                             ForEach(viewModel.filteredPlaces.indices, id: \.self) { index in
-                                let place = viewModel.filteredPlaces[index]
-                                var distanceInMiles: Double {
-                                    let placeLocation = CLLocation(latitude: place.coordinate.latitude, longitude: place.coordinate.longitude)
-                                    let userLocation = CLLocation(latitude: coordinates.lat, longitude: coordinates.lon)
-                                    return placeLocation.distance(from: userLocation) / 1609.34
-                                }
-
-                                NavigationLink(destination: DetailView(place: Binding.constant(place))) {
-                                        HStack {
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                Text(place.name)
-                                                    .font(.headline)
-                                                    .foregroundColor(.white)
-                                                Text(place.category.capitalized)
-                                                    .font(.subheadline)
-                                                    .foregroundColor(.yellow)
-                                            }
-                                            Spacer()
-                                            VStack(alignment: .trailing) {
-                                                Text("\(String(format: "%.1f", distanceInMiles)) miles")
-                                                    .foregroundColor(.white.opacity(0.8))
-                                                Text("Wait: \(place.waitTimeNow == "Unknown" ? "\(place.getWaitByHour()) min" : "\(place.waitTimeNow) min")")
-                                                    .bold()
-                                                    .foregroundColor(place.waitTimeNow == "Unknown" ? .yellow : .green)
-                                            }
-                                        }
-                                        .padding()
-                                        .background(RoundedRectangle(cornerRadius: 12)
-                                            .fill(Color.white.opacity(0.2))
-                                            .shadow(radius: 2))
+                                NavigationLink(destination: DetailView(place: $viewModel.filteredPlaces[index])) {
+                                    let place = viewModel.filteredPlaces[index]
+                                    var distanceInMiles: Double {
+                                        let placeLocation = CLLocation(latitude: place.coordinate.latitude, longitude: place.coordinate.longitude)
+                                        let userLocation = CLLocation(latitude: coordinates.lat, longitude: coordinates.lon)
+                                        return placeLocation.distance(from: userLocation) / 1609.34
                                     }
-                                    .buttonStyle(PlainButtonStyle())
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(place.name)
+                                                .font(.headline)
+                                                .foregroundColor(.white)
+                                            Text(place.category.capitalized)
+                                                .font(.subheadline)
+                                                .foregroundColor(.yellow)
+                                        }
+                                        Spacer()
+                                        VStack(alignment: .trailing) {
+                                            Text("\(String(format: "%.1f", distanceInMiles)) miles")
+                                                .foregroundColor(.white.opacity(0.8))
+                                            Text("Wait: \(place.waitTimeNow == "Unknown" ? "\(place.getWaitByHour()) min" : "\(place.waitTimeNow) min")")
+                                                .bold()
+                                                .foregroundColor(place.waitTimeNow == "Unknown" ? .yellow : .green)
+                                        }
+                                    }
+                                    .padding()
+                                    .background(RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.white.opacity(0.2))
+                                        .shadow(radius: 2))
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
+
                         }
                         .padding(.horizontal)
                     }

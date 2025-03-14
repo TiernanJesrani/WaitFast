@@ -49,7 +49,7 @@ class AttractionClass(FlaskClass):
                         close_time += 'PM'
                     left = datetime.strptime(open_time, '%I:%M%p').hour
                     right = datetime.strptime(close_time, '%I:%M%p').hour
-                    if current_hour:
+                    if current_hour >= left:
                         wait_times = row['wait_times']
                         if wait_times is None:
                             wait_times = {

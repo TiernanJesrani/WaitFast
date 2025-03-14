@@ -76,11 +76,6 @@ struct Place: Identifiable, Decodable {
         formatter.pmSymbol = "PM"
         
         if let date1 = formatter.date(from: time1), let date2 = formatter.date(from: time2) {
-            print(time1)
-            print(date1)
-            print(time2)
-            print(date2)
-            print(date1 < date2)
             return date1 < date2
         }
         return false
