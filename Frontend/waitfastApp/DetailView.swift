@@ -30,21 +30,42 @@ struct DetailView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     
-                    // Place Image IT WONT WORK
-                    if let imageURL = placeImageURL, let url = URL(string: imageURL) {
-                        AsyncImage(url: url) { image in
-                            image
-                                .resizable()
-                                .scaledToFill()
+                    // Place Image - Using the imageURL from your model
+                    if let imageURL = place.imageURL, let url = URL(string: imageURL) {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(height: 200)
+                                    .clipped()
+                                    .cornerRadius(12)
+                                    .shadow(radius: 4)
+                            case .failure(let error):
+                                VStack {
+                                    Image(systemName: "photo.fill")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 150)
+                                        .foregroundColor(.gray)
+                                    Text("Failed to load image")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
                                 .frame(height: 200)
-                                .clipped()
-                                .cornerRadius(12)
-                                .shadow(radius: 4)
-                        } placeholder: {
-                            ProgressView() 
+                                .onAppear {
+                                    print("Image loading error: \(error.localizedDescription)")
+                                }
+                            case .empty:
+                                ProgressView()
+                                    .frame(height: 200)
+                            @unknown default:
+                                EmptyView()
+                            }
                         }
                     } else {
-                        // Placeholder if no image found
+                        // Placeholder if no image URL
                         Image(systemName: "photo")
                             .resizable()
                             .scaledToFit()
@@ -130,50 +151,46 @@ struct DetailView: View {
     }
 
     private func fetchPlaceImage() {
-        let apiKey = "AIzaSyAKhhq8I_ZmNmyhpwhqZcof2ExPLilyiWk"
-        let placeID = place.id
-
-        print("Fetching image for Place ID: \(placeID)")
-
-        let detailsURL = "https://maps.googleapis.com/maps/api/place/details/json?place_id=\(placeID)&fields=photo&key=\(apiKey)"
-
-        guard let url = URL(string: detailsURL) else { return }
-
+        // If we already have the image URL in the Place model, use it
+        if let imageURL = place.imageURL {
+            self.placeImageURL = imageURL
+            print("Using image URL from model: \(imageURL)")
+            return
+        }
+        
+        // Construct the URL to your backend to fetch the image
+        let baseURL = "http://127.0.0.1:5000" // Use your actual backend base URL
+        let imageEndpoint = "/place/\(place.id)/image" // Adjust this endpoint to match your backend
+        
+        guard let url = URL(string: baseURL + imageEndpoint) else {
+            print("Invalid image URL")
+            return
+        }
+        
+        print("Fetching image for Place ID: \(place.id) from backend")
+        
         URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data, error == nil else {
-                print("Error fetching place details: \(error?.localizedDescription ?? "Unknown error")")
+                print("Error fetching image: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
-
+            
             do {
-                // Print full JSON response
-                if let jsonString = String(data: data, encoding: .utf8) {
-                    print("API Response: \(jsonString)")
-                }
-
-                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-
-                if let result = json?["result"] as? [String: Any],
-                   let photos = result["photos"] as? [[String: Any]],
-                   let firstPhoto = photos.first,
-                   let photoReference = firstPhoto["photo_reference"] as? String {
-
-                    let imageURL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=\(photoReference)&key=\(apiKey)"
-
+                if let jsonResponse = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let imageURL = jsonResponse["imageURL"] as? String {
+                    
                     DispatchQueue.main.async {
                         self.placeImageURL = imageURL
-                        print("Successfully fetched image URL: \(imageURL)")
+                        print("Successfully fetched image URL from backend: \(imageURL)")
                     }
-
                 } else {
-                    print("No photos found for this place.")
+                    print("No image URL found in response")
                     DispatchQueue.main.async {
                         self.showImageError = true
                     }
                 }
-
             } catch {
-                print("Error parsing JSON: \(error.localizedDescription)")
+                print("Error parsing image response: \(error.localizedDescription)")
             }
         }.resume()
     }

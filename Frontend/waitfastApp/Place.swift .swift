@@ -31,7 +31,7 @@ struct Place: Identifiable, Decodable {
         case sampleCount
         case waitTimeNow
         case dailyWaitTimes
-        // added image URL
+        // added image URL, try to use this in detail view
         case imageURL
     }
     
