@@ -17,7 +17,6 @@ struct Place: Identifiable, Decodable {
     let dailyWaitTimes: [String: Int]
     let sampleCount: Int
     let waitTimeNow: String
-    let dailyWaits: [Waits]
     let imageURL: String
     
     enum CodingKeys: String, CodingKey {
@@ -29,8 +28,13 @@ struct Place: Identifiable, Decodable {
         case sampleCount
         case waitTimeNow
         case dailyWaitTimes
-        // added image URL, try to use this in detail view
         case imageURL
+    }
+    
+    var dailyWaits: [Waits] {
+        return dailyWaitTimes
+            .sorted { compareTimeStrings($0.key, $1.key) }
+            .map { Waits(time: $0.key, min_delay: $0.value) }
     }
     
     init(id: String, name: String, category: String, lat: Double, long: Double, sampleCount: Int, waitTimeNow: String, dailyWaitTimes: [String: Int], imageURL: String) {
@@ -44,8 +48,6 @@ struct Place: Identifiable, Decodable {
         self.waitTimeNow = waitTimeNow
         self.imageURL = imageURL
         self.dailyWaitTimes = dailyWaitTimes
-        // Automatically create the dailyWaits array from dailyWaitTimes
-        self.dailyWaits = dailyWaitTimes.map { Waits(time: $0.key, min_delay: $0.value) }
     }
     
     // Decoding
@@ -65,7 +67,23 @@ struct Place: Identifiable, Decodable {
         waitTimeNow = try container.decode(String.self, forKey: .waitTimeNow)
         imageURL = try container.decode(String.self, forKey: .imageURL)
         dailyWaitTimes = try container.decode([String: Int].self, forKey: .dailyWaitTimes)
-        dailyWaits = dailyWaitTimes.map { Waits(time: $0.key, min_delay: $0.value) }
+    }
+    
+    func compareTimeStrings(_ time1: String, _ time2: String) -> Bool {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "hh:mma"
+        formatter.amSymbol = "AM"
+        formatter.pmSymbol = "PM"
+        
+        if let date1 = formatter.date(from: time1), let date2 = formatter.date(from: time2) {
+            print(time1)
+            print(date1)
+            print(time2)
+            print(date2)
+            print(date1 < date2)
+            return date1 < date2
+        }
+        return false
     }
     
     func getWaitByHour() -> Int {

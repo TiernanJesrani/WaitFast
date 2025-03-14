@@ -21,7 +21,7 @@ struct DetailView: View {
         ZStack {
             //  gradient
             LinearGradient(
-                gradient: Gradient(colors: [Color.blue.opacity(0.6), Color.black.opacity(0.8)]),
+                gradient: Gradient(colors: [Color.black.opacity(0.8), Color.blue.opacity(0.6)]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -73,18 +73,7 @@ struct DetailView: View {
                     }
 
                     
-                    Chart {
-                        ForEach(place.dailyWaits) { stat in
-                            BarMark(
-                                x: .value("Time", stat.time),
-                                y: .value("Wait", stat.min_delay)
-                            )
-                            .foregroundStyle(.blue) // Customize color if needed
-                            .clipShape(RoundedRectangle(cornerRadius: 16)) // Optional rounded corners
-                        }
-                    }
-                    .padding()
-                    .frame(height: 300)
+                    WaitTimeChart(dailyWaits: place.dailyWaits)
                     
                     VStack(spacing: 10) {
                         Text(place.name)
@@ -151,5 +140,49 @@ struct DetailView: View {
         formatter.allowedUnits = [.hour, .minute, .second]
         formatter.zeroFormattingBehavior = [.pad]
         return formatter.string(from: timeInterval) ?? "00:00:00"
+    }
+}
+
+struct WaitTimeChart: View {
+    let dailyWaits: [Waits]
+
+    var body: some View {
+        Chart {
+            ForEach(dailyWaits) { stat in
+                BarMark(
+                    x: .value("Time", stat.time),
+                    y: .value("Wait", stat.min_delay)
+                )
+                .foregroundStyle(.blue)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+            }
+        }
+        .frame(height: 300)
+
+        
+        .chartYAxis {
+            AxisMarks { _ in
+                AxisValueLabel()
+                    .foregroundStyle(.white)
+                    .offset(x: 10)
+                AxisGridLine()
+                    .foregroundStyle(.white.opacity(0.7))
+            }
+        }
+
+        .chartXAxis {
+            AxisMarks(values: dailyWaits.map { $0.time }) { value in
+                if let timeString = value.as(String.self), timeString.count >= 2 {
+                    AxisValueLabel {
+                        Text(String(timeString.prefix(2)))
+                            .foregroundStyle(.white)
+                    }
+                }
+                AxisTick()
+                    .foregroundStyle(.white)
+            }
+        }
+        .padding()
+        .frame(height: 300)
     }
 }
